@@ -1,0 +1,16 @@
+# AI & Agent skills
+.agents/
+.claude/
+skills/
+AGENTS.md
+CLAUDE.md
+boost.json
+opencode.json
+.mcp.json
+
+# Environment & Dependencies
+.env
+.env.*
+!.env.example
+node_modules/
+vendor/
