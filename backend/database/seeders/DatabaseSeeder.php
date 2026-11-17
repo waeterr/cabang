@@ -15,11 +15,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            CategorySeeder::class,
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create admin user
+        User::create([
+            'name' => 'Admin CaBang',
+            'nim' => 'ADMIN001',
+            'email' => 'admin@cabang.undip.ac.id',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+            'is_verified' => true,
+            'verification_status' => 'approved',
+        ]);
+
+        // Create test student user
+        User::create([
+            'name' => 'Mahasiswa Test',
+            'nim' => '24060122140001',
+            'email' => 'student@students.undip.ac.id',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+            'is_verified' => true,
+            'verification_status' => 'approved',
+            'ktm_path' => 'ktm/test.jpg',
         ]);
     }
 }

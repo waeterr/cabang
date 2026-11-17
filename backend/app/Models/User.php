@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'nim', 'email', 'password', 'role', 'ktm_path', 'is_verified', 'verification_status', 'rejection_reason'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -27,6 +27,39 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the reports for the user.
+     */
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    /**
+     * Get the claims for the user.
+     */
+    public function claims()
+    {
+        return $this->hasMany(Claim::class);
+    }
+
+    /**
+     * Check if user is admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is verified.
+     */
+    public function isVerified(): bool
+    {
+        return $this->is_verified && $this->verification_status === 'approved';
     }
 }

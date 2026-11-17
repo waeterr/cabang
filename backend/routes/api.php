@@ -1,15 +1,69 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ClaimController;
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', function () {
     return response()->json([
         'status' => 'success',
-        'message' => 'API Sistem Barang Hilang Perpustakaan aktif',
+        'message' => 'API CaBang - Sistem Barang Hilang UNDIP',
     ]);
 });
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Authentication routes
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
+
+    // Categories (public read)
+    Route::get('/categories', [CategoryController::class, 'index']);
+
+    // Verified user routes
+    Route::middleware('verified')->group(function () {
+        // Reports
+        Route::apiResource('reports', ReportController::class);
+        Route::get('/reports/my/list', [ReportController::class, 'myReports']);
+
+        // Claims
+        Route::apiResource('claims', ClaimController::class);
+        Route::get('/claims/my/list', [ClaimController::class, 'myClaims']);
+    });
+
+    // Admin routes
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+        // User management
+        Route::get('/users/unverified', [UserController::class, 'unverified']);
+        Route::post('/users/{id}/verify', [UserController::class, 'verify']);
+        Route::post('/users/{id}/reject', [UserController::class, 'reject']);
+        Route::put('/users/{id}/deactivate', [UserController::class, 'deactivate']);
+        Route::put('/users/{id}/activate', [UserController::class, 'activate']);
+        Route::apiResource('users', UserController::class);
+
+        // Report management
+        Route::get('/reports/pending/list', [App\Http\Controllers\Api\Admin\ReportController::class, 'pending']);
+        Route::post('/reports/{id}/approve', [App\Http\Controllers\Api\Admin\ReportController::class, 'approve']);
+        Route::post('/reports/{id}/reject', [App\Http\Controllers\Api\Admin\ReportController::class, 'reject']);
+        Route::post('/reports/{id}/resolve', [App\Http\Controllers\Api\Admin\ReportController::class, 'resolve']);
+        Route::apiResource('reports', App\Http\Controllers\Api\Admin\ReportController::class)->only(['index', 'show', 'destroy']);
+
+        // Claim management
+        Route::get('/claims/pending/list', [App\Http\Controllers\Api\Admin\ClaimController::class, 'pending']);
+        Route::post('/claims/{id}/approve', [App\Http\Controllers\Api\Admin\ClaimController::class, 'approve']);
+        Route::post('/claims/{id}/reject', [App\Http\Controllers\Api\Admin\ClaimController::class, 'reject']);
+        Route::apiResource('claims', App\Http\Controllers\Api\Admin\ClaimController::class)->only(['index', 'show', 'destroy']);
+
+        // Category management
+        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
+    });
+});
