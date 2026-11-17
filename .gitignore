@@ -14,3 +14,4 @@ opencode.json
 !.env.example
 node_modules/
 vendor/
+/docs
