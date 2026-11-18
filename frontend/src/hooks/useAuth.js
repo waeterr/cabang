@@ -27,6 +27,7 @@ export const useAuth = () => {
     if (token && !user) {
       refreshUser();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   return {
