@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { UserPlus, Mail, Lock, User, CreditCard, Upload, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { register } from '../../api/auth';
 import useAuthStore from '../../store/authStore';
-import { handleApiError } from '../../utils/helpers';
+import AmbientBackground from '../../components/common/AmbientBackground';
 import './Auth.css';
 
 const Register = () => {
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [formData, setFormData] = useState({
     name: '',
     nim: '',
@@ -16,244 +19,289 @@ const Register = () => {
     password_confirmation: '',
     ktm: null,
   });
-  const [errors, setErrors] = useState({});
+  const [preview, setPreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [ktmPreview, setKtmPreview] = useState(null);
 
-  const handleChange = ({ target: { name, value, files } }) => {
-    if (name === 'ktm' && files?.[0]) {
-      const file = files[0];
-      
-      // Validate file
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-      const maxSize = 2 * 1024 * 1024; // 2MB
-      
-      if (!validTypes.includes(file.type)) {
-        setErrors((prev) => ({ ...prev, ktm: 'Format file harus JPG, PNG, atau PDF' }));
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('File size must be less than 2MB');
         return;
       }
-      
-      if (file.size > maxSize) {
-        setErrors((prev) => ({ ...prev, ktm: 'Ukuran file maksimal 2MB' }));
-        return;
-      }
-      
-      setFormData((prev) => ({ ...prev, ktm: file }));
-      
-      // Preview for images only
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => setKtmPreview(reader.result);
-        reader.readAsDataURL(file);
-      } else {
-        setKtmPreview('pdf');
-      }
-      
-      setErrors((prev) => ({ ...prev, ktm: '' }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+
+      setFormData({
+        ...formData,
+        ktm: file,
+      });
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const validate = () => {
-    const nextErrors = {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (!formData.name) {
-      nextErrors.name = 'Nama lengkap wajib diisi.';
-    }
-
-    if (!formData.nim) {
-      nextErrors.nim = 'NIM wajib diisi.';
-    } else if (!/^\d{14}$/.test(formData.nim)) {
-      nextErrors.nim = 'NIM harus 14 digit angka.';
-    }
-
-    if (!formData.email) {
-      nextErrors.email = 'Email wajib diisi.';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      nextErrors.email = 'Format email tidak valid.';
-    }
-
-    if (!formData.password) {
-      nextErrors.password = 'Password wajib diisi.';
-    } else if (formData.password.length < 8) {
-      nextErrors.password = 'Password minimal 8 karakter.';
-    }
-
-    if (!formData.password_confirmation) {
-      nextErrors.password_confirmation = 'Konfirmasi password wajib diisi.';
-    } else if (formData.password !== formData.password_confirmation) {
-      nextErrors.password_confirmation = 'Password tidak sama.';
+    if (formData.password !== formData.password_confirmation) {
+      toast.error('Passwords do not match');
+      return;
     }
 
     if (!formData.ktm) {
-      nextErrors.ktm = 'File KTM wajib diunggah.';
-    }
-
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!validate()) {
+      toast.error('Please upload your KTM');
       return;
     }
 
     setIsLoading(true);
 
-    try {
-      const data = new FormData();
-      data.append('name', formData.name);
-      data.append('nim', formData.nim);
-      data.append('email', formData.email);
-      data.append('password', formData.password);
-      data.append('password_confirmation', formData.password_confirmation);
-      data.append('ktm', formData.ktm);
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('nim', formData.nim);
+    data.append('email', formData.email);
+    data.append('password', formData.password);
+    data.append('password_confirmation', formData.password_confirmation);
+    data.append('ktm', formData.ktm);
 
-      await register(data);
-      
-      toast.success('Registrasi berhasil! Menunggu verifikasi admin.');
-      
-      // For now, don't auto-login since account needs verification
-      // Just redirect to login
-      navigate('/login');
+    try {
+      const response = await register(data);
+      const { user, token } = response.data;
+
+      setAuth(user, token);
+      toast.success('Registration successful! Please wait for verification.');
+      navigate('/verification-pending');
     } catch (error) {
-      setErrors(error.response?.data?.errors ?? {});
-      toast.error(handleApiError(error));
+      toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="auth-page">
-      <section className="auth-card" aria-labelledby="register-title">
-        <Link className="auth-brand" to="/">CaBang</Link>
-        <h1 id="register-title">Daftar Akun</h1>
-        <p className="auth-description">
-          Buat akun untuk mulai melaporkan dan mencari barang di Perpustakaan UNDIP
-        </p>
+    <div className="auth-page">
+      <AmbientBackground />
 
-        <form className="auth-form" onSubmit={handleSubmit} noValidate>
-          <label htmlFor="name">
-            Nama Lengkap
-            <input
-              autoComplete="name"
-              disabled={isLoading}
-              id="name"
-              name="name"
-              onChange={handleChange}
-              placeholder="Nama sesuai KTM"
-              type="text"
-              value={formData.name}
-            />
-            {errors.name && <span className="field-error">{errors.name[0] ?? errors.name}</span>}
-          </label>
+      <Link to="/" className="auth-back-link">
+        <ArrowRight size={20} style={{ transform: 'rotate(180deg)' }} />
+        <span>Back to Home</span>
+      </Link>
 
-          <label htmlFor="nim">
-            NIM
-            <input
-              autoComplete="off"
-              disabled={isLoading}
-              id="nim"
-              name="nim"
-              onChange={handleChange}
-              placeholder="14 digit NIM UNDIP"
-              type="text"
-              value={formData.nim}
-              className="mono"
-            />
-            {errors.nim && <span className="field-error">{errors.nim[0] ?? errors.nim}</span>}
-          </label>
+      <div className="auth-container">
+        <motion.div
+          className="auth-card register-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="auth-header">
+            <motion.div
+              className="auth-icon"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2, type: 'spring' }}
+            >
+              <UserPlus size={32} />
+            </motion.div>
+            <h1 className="auth-title">Create Account</h1>
+            <p className="auth-subtitle">Bergabung dengan komunitas CaBang</p>
+          </div>
 
-          <label htmlFor="email">
-            Email Mahasiswa
-            <input
-              autoComplete="email"
-              disabled={isLoading}
-              id="email"
-              name="email"
-              onChange={handleChange}
-              placeholder="nama@students.undip.ac.id"
-              type="email"
-              value={formData.email}
-            />
-            {errors.email && <span className="field-error">{errors.email[0] ?? errors.email}</span>}
-          </label>
-
-          <label htmlFor="password">
-            Password
-            <input
-              autoComplete="new-password"
-              disabled={isLoading}
-              id="password"
-              name="password"
-              onChange={handleChange}
-              placeholder="Minimal 8 karakter"
-              type="password"
-              value={formData.password}
-            />
-            {errors.password && <span className="field-error">{errors.password[0] ?? errors.password}</span>}
-          </label>
-
-          <label htmlFor="password_confirmation">
-            Konfirmasi Password
-            <input
-              autoComplete="new-password"
-              disabled={isLoading}
-              id="password_confirmation"
-              name="password_confirmation"
-              onChange={handleChange}
-              placeholder="Ketik ulang password"
-              type="password"
-              value={formData.password_confirmation}
-            />
-            {errors.password_confirmation && (
-              <span className="field-error">{errors.password_confirmation[0] ?? errors.password_confirmation}</span>
-            )}
-          </label>
-
-          <label htmlFor="ktm" className="file-upload-label">
-            Kartu Tanda Mahasiswa (KTM)
-            <input
-              accept=".jpg,.jpeg,.png,.pdf"
-              disabled={isLoading}
-              id="ktm"
-              name="ktm"
-              onChange={handleChange}
-              type="file"
-            />
-            <span className="file-help">JPG, PNG, atau PDF. Maksimal 2MB</span>
-            {errors.ktm && <span className="field-error">{errors.ktm[0] ?? errors.ktm}</span>}
-          </label>
-
-          {ktmPreview && (
-            <div className="ktm-preview">
-              {ktmPreview === 'pdf' ? (
-                <div className="pdf-placeholder">
-                  <span className="pdf-icon">📄</span>
-                  <span className="pdf-name">{formData.ktm?.name}</span>
-                </div>
-              ) : (
-                <img src={ktmPreview} alt="Preview KTM" />
-              )}
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">
+                Full Name
+              </label>
+              <div className="input-wrapper">
+                <User className="input-icon" size={18} />
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Your full name"
+                  className="form-input"
+                  required
+                  autoComplete="name"
+                />
+              </div>
             </div>
-          )}
 
-          <button disabled={isLoading} type="submit">
-            {isLoading ? 'Memproses…' : 'Daftar'}
-          </button>
-        </form>
+            <div className="form-group">
+              <label htmlFor="nim" className="form-label">
+                NIM
+              </label>
+              <div className="input-wrapper">
+                <CreditCard className="input-icon" size={18} />
+                <input
+                  type="text"
+                  id="nim"
+                  name="nim"
+                  value={formData.nim}
+                  onChange={handleChange}
+                  placeholder="24060122140001"
+                  className="form-input"
+                  required
+                />
+              </div>
+            </div>
 
-        <p className="auth-footer">
-          Sudah punya akun? <Link to="/login">Masuk</Link>
-        </p>
-        <Link className="back-link" to="/">← Kembali ke beranda</Link>
-      </section>
-    </main>
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">
+                Email Address
+              </label>
+              <div className="input-wrapper">
+                <Mail className="input-icon" size={18} />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@students.undip.ac.id"
+                  className="form-input"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Create a password"
+                  className="form-input"
+                  required
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password_confirmation" className="form-label">
+                Confirm Password
+              </label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  type="password"
+                  id="password_confirmation"
+                  name="password_confirmation"
+                  value={formData.password_confirmation}
+                  onChange={handleChange}
+                  placeholder="Confirm your password"
+                  className="form-input"
+                  required
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="ktm" className="form-label">
+                Upload KTM
+              </label>
+              <div className="upload-wrapper">
+                <input
+                  type="file"
+                  id="ktm"
+                  name="ktm"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="upload-input"
+                  required
+                />
+                <label htmlFor="ktm" className="upload-label">
+                  {preview ? (
+                    <img src={preview} alt="KTM Preview" className="upload-preview" />
+                  ) : (
+                    <div className="upload-placeholder">
+                      <Upload size={24} />
+                      <span>Click to upload KTM</span>
+                      <span className="upload-hint">PNG, JPG up to 2MB</span>
+                    </div>
+                  )}
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="auth-submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span>Creating account...</span>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            <p className="auth-footer-text">
+              Already have an account?{' '}
+              <Link to="/login" className="auth-link">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="auth-info"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h2 className="info-title">
+            Bergabung dengan
+            <br />
+            <span className="text-gradient">CaBang</span>
+          </h2>
+          <p className="info-description">
+            Buat akun Anda dan mulai bantu komunitas UNDIP
+            menemukan kembali barang hilang mereka.
+          </p>
+          <div className="info-features">
+            <div className="info-feature">
+              <div className="feature-dot" />
+              <span>Quick registration</span>
+            </div>
+            <div className="info-feature">
+              <div className="feature-dot" />
+              <span>Secure KTM verification</span>
+            </div>
+            <div className="info-feature">
+              <div className="feature-dot" />
+              <span>Community support</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 };
 

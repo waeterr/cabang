@@ -1,109 +1,182 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { login } from '../../api/auth';
 import useAuthStore from '../../store/authStore';
-import { handleApiError } from '../../utils/helpers';
+import AmbientBackground from '../../components/common/AmbientBackground';
 import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = ({ target: { name, value } }) => {
-    setFormData((current) => ({ ...current, [name]: value }));
-    setErrors((current) => ({ ...current, [name]: '' }));
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const validate = () => {
-    const nextErrors = {};
-
-    if (!formData.email) {
-      nextErrors.email = 'Email wajib diisi.';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      nextErrors.email = 'Format email tidak valid.';
-    }
-
-    if (!formData.password) {
-      nextErrors.password = 'Password wajib diisi.';
-    }
-
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
 
     try {
       const response = await login(formData);
-      setAuth(response.user, response.token);
-      toast.success('Login berhasil.');
-      navigate(response.user.role === 'admin' ? '/admin/dashboard' : '/dashboard');
+      const { user, token } = response.data;
+
+      setAuth(user, token);
+      toast.success(`Welcome back, ${user.name}!`);
+
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (user.is_verified && user.verification_status === 'approved') {
+        navigate('/dashboard');
+      } else {
+        navigate('/verification-pending');
+      }
     } catch (error) {
-      setErrors(error.response?.data?.errors ?? {});
-      toast.error(handleApiError(error));
+      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="auth-page">
-      <section className="auth-card" aria-labelledby="login-title">
-        <Link className="auth-brand" to="/">CaBang</Link>
-        <h1 id="login-title">Masuk</h1>
-        <p className="auth-description">Cari Barang Hilang Universitas Diponegoro</p>
+    <div className="auth-page">
+      <AmbientBackground />
 
-        <form className="auth-form" onSubmit={handleSubmit} noValidate>
-          <label htmlFor="email">
-            Email
-            <input
-              autoComplete="email"
+      <Link to="/" className="auth-back-link">
+        <ArrowRight size={20} style={{ transform: 'rotate(180deg)' }} />
+        <span>Back to Home</span>
+      </Link>
+
+      <div className="auth-container">
+        <motion.div
+          className="auth-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="auth-header">
+            <motion.div
+              className="auth-icon"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2, type: 'spring' }}
+            >
+              <LogIn size={32} />
+            </motion.div>
+            <h1 className="auth-title">Welcome Back</h1>
+            <p className="auth-subtitle">Sign in to continue to CaBang</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">
+                Email Address
+              </label>
+              <div className="input-wrapper">
+                <Mail className="input-icon" size={18} />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@students.undip.ac.id"
+                  className="form-input"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="form-input"
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="auth-submit"
               disabled={isLoading}
-              id="email"
-              name="email"
-              onChange={handleChange}
-              placeholder="nama@students.undip.ac.id"
-              type="email"
-              value={formData.email}
-            />
-            {errors.email && <span className="field-error">{errors.email[0] ?? errors.email}</span>}
-          </label>
+            >
+              {isLoading ? (
+                <span>Signing in...</span>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+          </form>
 
-          <label htmlFor="password">
-            Password
-            <input
-              autoComplete="current-password"
-              disabled={isLoading}
-              id="password"
-              name="password"
-              onChange={handleChange}
-              placeholder="Masukkan password"
-              type="password"
-              value={formData.password}
-            />
-            {errors.password && <span className="field-error">{errors.password[0] ?? errors.password}</span>}
-          </label>
+          <div className="auth-footer">
+            <p className="auth-footer-text">
+              Don't have an account?{' '}
+              <Link to="/register" className="auth-link">
+                Create one
+              </Link>
+            </p>
+          </div>
+        </motion.div>
 
-          <button disabled={isLoading} type="submit">
-            {isLoading ? 'Memproses…' : 'Masuk'}
-          </button>
-        </form>
-
-        <p className="auth-footer">Belum punya akun? <Link to="/register">Daftar sekarang</Link></p>
-        <Link className="back-link" to="/">← Kembali ke beranda</Link>
-      </section>
-    </main>
+        <motion.div
+          className="auth-info"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h2 className="info-title">
+            Lost & Found
+            <br />
+            <span className="text-gradient">Made Simple</span>
+          </h2>
+          <p className="info-description">
+            CaBang membantu Anda menemukan kembali barang hilang dengan cepat dan mudah.
+            Bergabunglah dengan komunitas UNDIP untuk kampus yang lebih baik.
+          </p>
+          <div className="info-features">
+            <div className="info-feature">
+              <div className="feature-dot" />
+              <span>Quick item reporting</span>
+            </div>
+            <div className="info-feature">
+              <div className="feature-dot" />
+              <span>Real-time notifications</span>
+            </div>
+            <div className="info-feature">
+              <div className="feature-dot" />
+              <span>Secure verification</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 };
 
