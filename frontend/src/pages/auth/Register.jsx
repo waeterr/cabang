@@ -74,8 +74,7 @@ const Register = () => {
     data.append('ktm', formData.ktm);
 
     try {
-      const response = await register(data);
-      const { user, token } = response.data;
+      const { user, token } = await register(data);
 
       setAuth(user, token);
       toast.success('Registration successful! Please wait for verification.');

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Search, Plus } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { logout } from '../../api/auth';
 import useAuthStore from '../../store/authStore';
 import './Navbar.css';
 
@@ -9,8 +11,22 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // Silent fail
+    } finally {
+      clearAuth();
+      toast.success('Logged out successfully');
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,8 +49,8 @@ const Navbar = () => {
     <>
       <motion.nav
         className={`navbar ${isScrolled ? 'scrolled' : ''}`}
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        initial={{ x: '-50%', y: -100, opacity: 0 }}
+        animate={{ x: '-50%', y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="navbar-container">
@@ -71,27 +87,20 @@ const Navbar = () => {
           <div className="navbar-actions">
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="nav-action-link desktop-only">
-                  <Search size={18} />
-                  <span>Browse</span>
+                <Link to={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'} className="nav-cta">
+                  <span>Dashboard</span>
                 </Link>
-                <Link to="/reports/create" className="nav-cta">
-                  <Plus size={18} />
-                  <span>Report Item</span>
-                </Link>
-                <Link to="/dashboard" className="nav-profile">
-                  <div className="profile-avatar">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                </Link>
+                <button onClick={handleLogout} className="nav-logout" title="Logout">
+                  <LogOut size={18} />
+                </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="nav-action-link desktop-only">
-                  Login
+                <Link to="/login" className="nav-action-link">
+                  Masuk
                 </Link>
                 <Link to="/register" className="nav-cta">
-                  Get Started
+                  Daftar
                 </Link>
               </>
             )}
@@ -131,19 +140,21 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <>
                   <Link
-                    to="/dashboard"
+                    to={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                     className="mobile-menu-link"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
-                  <Link
-                    to="/reports/create"
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
                     className="mobile-menu-link"
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Report Item
-                  </Link>
+                    Logout
+                  </button>
                 </>
               ) : (
                 <>
@@ -152,14 +163,14 @@ const Navbar = () => {
                     className="mobile-menu-link"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Login
+                    Masuk
                   </Link>
                   <Link
                     to="/register"
                     className="mobile-menu-link"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Get Started
+                    Daftar
                   </Link>
                 </>
               )}

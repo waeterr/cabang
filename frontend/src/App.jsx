@@ -9,7 +9,10 @@ import VerificationPending from './pages/VerificationPending';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminDashboard from './pages/admin/Dashboard';
+import VerifyKTM from './pages/admin/VerifyKTM';
 import Dashboard from './pages/student/Dashboard';
+import BrowseItems from './pages/items/BrowseItems';
+import CreateReport from './pages/reports/CreateReport';
 
 function App() {
   return (
@@ -51,11 +54,30 @@ function App() {
         )}
       />
 
+      <Route path="/items/lost" element={<BrowseItems />} />
+      <Route path="/items/found" element={<BrowseItems />} />
+      <Route
+        path="/reports/create"
+        element={(
+          <VerifiedRoute>
+            <CreateReport />
+          </VerifiedRoute>
+        )}
+      />
+
       <Route
         path="/admin/dashboard"
         element={(
           <AdminRoute>
             <AdminDashboard />
+          </AdminRoute>
+        )}
+      />
+      <Route
+        path="/admin/verifications"
+        element={(
+          <AdminRoute>
+            <VerifyKTM />
           </AdminRoute>
         )}
       />

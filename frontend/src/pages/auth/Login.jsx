@@ -29,8 +29,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await login(formData);
-      const { user, token } = response.data;
+      const { user, token } = await login(formData);
 
       setAuth(user, token);
       toast.success(`Welcome back, ${user.name}!`);
