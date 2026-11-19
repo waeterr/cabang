@@ -146,6 +146,70 @@
   font-size: var(--t-small);
 }
 
+.auth-form input[type='file'] {
+  padding: var(--s-3);
+  font-size: var(--t-small);
+  cursor: pointer;
+}
+
+.file-upload-label {
+  position: relative;
+}
+
+.file-help {
+  display: block;
+  margin-top: var(--s-2);
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.ktm-preview {
+  padding: var(--s-4);
+  background: var(--g-alt);
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  animation: previewEnter 0.3s var(--ease-out);
+}
+
+@keyframes previewEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ktm-preview img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--paper-edge);
+}
+
+.pdf-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  text-align: center;
+}
+
+.pdf-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.pdf-name {
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+  word-break: break-word;
+}
+
 @media (max-width: 640px) {
   .auth-card { padding: var(--s-6); }
 }

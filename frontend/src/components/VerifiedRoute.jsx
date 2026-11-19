@@ -5,10 +5,8 @@ import useAuthStore from '../store/authStore';
  * Route wrapper that requires user to be verified
  */
 const VerifiedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore((state) => ({
-    isAuthenticated: state.isAuthenticated,
-    user: state.user,
-  }));
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
