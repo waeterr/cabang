@@ -13,6 +13,7 @@ import VerifyKTM from './pages/admin/VerifyKTM';
 import AdminReports from './pages/admin/AdminReports';
 import Dashboard from './pages/student/Dashboard';
 import BrowseItems from './pages/items/BrowseItems';
+import ItemDetail from './pages/items/ItemDetail';
 import CreateReport from './pages/reports/CreateReport';
 
 
@@ -58,6 +59,7 @@ function App() {
 
       <Route path="/items/lost" element={<BrowseItems />} />
       <Route path="/items/found" element={<BrowseItems />} />
+      <Route path="/items/:id" element={<ItemDetail />} />
       <Route
         path="/reports/create"
         element={(

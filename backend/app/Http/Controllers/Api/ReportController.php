@@ -87,7 +87,9 @@ class ReportController extends Controller
      */
     public function show(string $id)
     {
-        $report = Report::with(['user', 'claims.user'])->findOrFail($id);
+        $report = Report::with('user')
+            ->approved()
+            ->findOrFail($id);
 
         return response()->json($report);
     }
