@@ -29,8 +29,8 @@ const BrowseItems = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await getCategories();
-      setCategories(response.data || []);
+      const data = await getCategories();
+      setCategories(Array.isArray(data) ? data : (data.data || []));
     } catch (error) {
       console.error('Failed to load categories');
     }

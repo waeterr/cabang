@@ -30,10 +30,11 @@ const CreateReport = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await getCategories();
-      setCategories(response.data || []);
+      const data = await getCategories();
+      setCategories(Array.isArray(data) ? data : (data.data || []));
     } catch (error) {
       toast.error('Failed to load categories');
+      console.error('Categories error:', error);
     }
   };
 
@@ -73,14 +74,17 @@ const CreateReport = () => {
     const data = new FormData();
     data.append('item_name', formData.item_name);
     data.append('description', formData.description);
-    data.append('category_id', formData.category_id);
+    const selectedCategory = categories.find(c => c.id === parseInt(formData.category_id));
+    data.append('category', selectedCategory?.name || '');
     data.append('type', formData.type);
     data.append('location', formData.location);
     if (formData.date_lost) {
-      data.append('date_lost', formData.date_lost);
+      data.append('date', formData.date_lost);
+    } else {
+      data.append('date', new Date().toISOString().split('T')[0]);
     }
     if (formData.image) {
-      data.append('image', formData.image);
+      data.append('photo', formData.image);
     }
 
     try {

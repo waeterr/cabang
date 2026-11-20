@@ -10,9 +10,11 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminDashboard from './pages/admin/Dashboard';
 import VerifyKTM from './pages/admin/VerifyKTM';
+import AdminReports from './pages/admin/AdminReports';
 import Dashboard from './pages/student/Dashboard';
 import BrowseItems from './pages/items/BrowseItems';
 import CreateReport from './pages/reports/CreateReport';
+
 
 function App() {
   return (
@@ -78,6 +80,14 @@ function App() {
         element={(
           <AdminRoute>
             <VerifyKTM />
+          </AdminRoute>
+        )}
+      />
+      <Route
+        path="/admin/reports"
+        element={(
+          <AdminRoute>
+            <AdminReports />
           </AdminRoute>
         )}
       />

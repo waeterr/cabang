@@ -199,6 +199,15 @@
   padding: var(--s-7) var(--s-8);
 }
 
+/* Admin shell accent */
+.admin-shell .app-nav-link.is-active {
+  background: var(--library-navy);
+}
+
+.admin-shell .app-avatar {
+  background: var(--library-navy);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .app-shell {

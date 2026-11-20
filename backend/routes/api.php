@@ -19,18 +19,22 @@ Route::get('/ping', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public routes
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/reports', [ReportController::class, 'index']);
+Route::get('/reports/{id}', [ReportController::class, 'show']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    // Categories (public read)
-    Route::get('/categories', [CategoryController::class, 'index']);
-
     // Verified user routes
     Route::middleware('verified')->group(function () {
         // Reports
-        Route::apiResource('reports', ReportController::class);
+        Route::post('/reports', [ReportController::class, 'store']);
+        Route::put('/reports/{id}', [ReportController::class, 'update']);
+        Route::delete('/reports/{id}', [ReportController::class, 'destroy']);
         Route::get('/reports/my/list', [ReportController::class, 'myReports']);
 
         // Claims
