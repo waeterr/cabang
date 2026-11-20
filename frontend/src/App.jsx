@@ -14,6 +14,7 @@ import AdminReports from './pages/admin/AdminReports';
 import Dashboard from './pages/student/Dashboard';
 import BrowseItems from './pages/items/BrowseItems';
 import ItemDetail from './pages/items/ItemDetail';
+import CreateClaim from './pages/claims/CreateClaim';
 import CreateReport from './pages/reports/CreateReport';
 
 
@@ -60,6 +61,14 @@ function App() {
       <Route path="/items/lost" element={<BrowseItems />} />
       <Route path="/items/found" element={<BrowseItems />} />
       <Route path="/items/:id" element={<ItemDetail />} />
+      <Route
+        path="/claims/create/:id"
+        element={(
+          <VerifiedRoute>
+            <CreateClaim />
+          </VerifiedRoute>
+        )}
+      />
       <Route
         path="/reports/create"
         element={(

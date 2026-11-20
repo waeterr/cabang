@@ -42,6 +42,71 @@
   color: var(--text-secondary);
 }
 
+/* Claim form */
+.claim-back-link {
+  margin-bottom: 1.5rem;
+}
+
+.claim-item-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.875rem;
+}
+
+.claim-item-summary img {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: 0.625rem;
+}
+
+.claim-item-summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.claim-item-summary span,
+.claim-item-summary small,
+.file-hint {
+  color: var(--text-secondary);
+  font-size: 0.813rem;
+}
+
+.claim-item-summary strong {
+  color: var(--text-primary);
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--glass-highlight);
+  border-radius: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.file-upload-label:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
 /* Form */
 .report-form {
   padding: 2.5rem;
