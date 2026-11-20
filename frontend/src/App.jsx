@@ -15,6 +15,7 @@ import Dashboard from './pages/student/Dashboard';
 import BrowseItems from './pages/items/BrowseItems';
 import ItemDetail from './pages/items/ItemDetail';
 import CreateClaim from './pages/claims/CreateClaim';
+import MyClaims from './pages/claims/MyClaims';
 import CreateReport from './pages/reports/CreateReport';
 
 
@@ -66,6 +67,14 @@ function App() {
         element={(
           <VerifiedRoute>
             <CreateClaim />
+          </VerifiedRoute>
+        )}
+      />
+      <Route
+        path="/claims/my"
+        element={(
+          <VerifiedRoute>
+            <MyClaims />
           </VerifiedRoute>
         )}
       />
