@@ -11,6 +11,7 @@ import Register from './pages/auth/Register';
 import AdminDashboard from './pages/admin/Dashboard';
 import VerifyKTM from './pages/admin/VerifyKTM';
 import AdminReports from './pages/admin/AdminReports';
+import AdminClaims from './pages/admin/AdminClaims';
 import Dashboard from './pages/student/Dashboard';
 import BrowseItems from './pages/items/BrowseItems';
 import ItemDetail from './pages/items/ItemDetail';
@@ -108,6 +109,14 @@ function App() {
         element={(
           <AdminRoute>
             <AdminReports />
+          </AdminRoute>
+        )}
+      />
+      <Route
+        path="/admin/claims"
+        element={(
+          <AdminRoute>
+            <AdminClaims />
           </AdminRoute>
         )}
       />
