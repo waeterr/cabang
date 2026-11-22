@@ -8,6 +8,11 @@ export const getReports = async (params = {}) => {
   return response.data;
 };
 
+export const getPublicStats = async () => {
+  const response = await apiClient.get('/stats');
+  return response.data;
+};
+
 /**
  * Get report by ID
  */

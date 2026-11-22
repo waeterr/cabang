@@ -45,7 +45,7 @@ class ReportController extends Controller
             $query->where('item_name', 'like', '%'.$request->search.'%');
         }
 
-        $reports = $query->latest()->paginate(15);
+        $reports = $query->latest()->paginate(min((int) $request->input('per_page', 15), 50));
 
         return response()->json($reports);
     }

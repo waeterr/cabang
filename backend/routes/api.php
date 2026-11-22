@@ -21,6 +21,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Public routes
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/stats', [DashboardController::class, 'stats']);
 Route::get('/reports', [ReportController::class, 'index']);
 Route::get('/reports/{id}', [ReportController::class, 'show']);
 

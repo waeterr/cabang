@@ -1,46 +1,47 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Search, Plus, TrendingUp, Clock, MapPin, Package } from 'lucide-react';
+import { Search, Plus, TrendingUp, Package } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { getPublicStats, getReports } from '../api/reports';
+import { getStorageUrl, handleApiError, getRelativeTime } from '../utils/helpers';
 import Navbar from '../components/common/Navbar';
 import AmbientBackground from '../components/common/AmbientBackground';
 import './Home.css';
 
 const Home = () => {
-  const stats = [
-    { label: 'Items Found', value: '1,234', icon: Package },
-    { label: 'Active Reports', value: '89', icon: TrendingUp },
-    { label: 'Avg Response', value: '2.5h', icon: Clock },
-    { label: 'Locations', value: '12', icon: MapPin },
-  ];
+  const [statsData, setStatsData] = useState({ found: 0, active: 0 });
+  const [recentItems, setRecentItems] = useState([]);
 
-  const recentItems = [
-    {
-      id: 1,
-      name: 'Blue Backpack',
-      category: 'Bag',
-      location: 'Library Floor 3',
-      date: '2 hours ago',
-      status: 'lost',
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400',
-    },
-    {
-      id: 2,
-      name: 'Student ID Card',
-      category: 'Document',
-      location: 'Canteen Area',
-      date: '5 hours ago',
-      status: 'found',
-      image: 'https://images.unsplash.com/photo-1589395937772-903d7f229537?w=400',
-    },
-    {
-      id: 3,
-      name: 'Black Umbrella',
-      category: 'Accessory',
-      location: 'Lecture Hall A',
-      date: '1 day ago',
-      status: 'lost',
-      image: 'https://images.unsplash.com/photo-1525003544775-df3a54a6d8f5?w=400',
-    },
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const [foundData, lostData, stats] = await Promise.all([
+          getReports({ type: 'found', per_page: 3 }),
+          getReports({ type: 'lost', per_page: 3 }),
+          getPublicStats(),
+        ]);
+
+        const latestItems = [...(foundData.data || []), ...(lostData.data || [])]
+          .sort((first, second) => new Date(second.created_at) - new Date(first.created_at))
+          .slice(0, 3);
+
+        setRecentItems(latestItems);
+        setStatsData({
+          found: stats.reports?.found_items || 0,
+          active: (stats.reports?.pending || 0) + (stats.reports?.approved || 0),
+        });
+      } catch (error) {
+        toast.error(handleApiError(error));
+      }
+    };
+
+    fetchHomeData();
+  }, []);
+
+  const stats = [
+    { label: 'Items Found', value: statsData.found, icon: Package },
+    { label: 'Active Reports', value: statsData.active, icon: TrendingUp },
   ];
 
   return (
@@ -157,36 +158,44 @@ const Home = () => {
           </motion.div>
 
           <div className="items-grid">
-            {recentItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                className="item-card"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              >
-                <div className="item-image-wrapper">
-                  <img src={item.image} alt={item.name} className="item-image" />
-                  <div className={`item-badge ${item.status}`}>
-                    {item.status === 'lost' ? 'Lost' : 'Found'}
+            {recentItems.length === 0 ? (
+              <p className="empty-recent">Belum ada laporan terbaru.</p>
+            ) : (
+              recentItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  className="item-card"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                >
+                  <div className="item-image-wrapper">
+                    {item.photo_path ? (
+                      <img src={getStorageUrl(item.photo_path)} alt={item.item_name} className="item-image" />
+                    ) : (
+                      <div className="item-placeholder"><Package size={48} /></div>
+                    )}
+                    <div className={`item-badge ${item.type}`}>
+                      {item.type === 'lost' ? 'Lost' : 'Found'}
+                    </div>
                   </div>
-                </div>
-                <div className="item-content">
-                  <h3 className="item-name">{item.name}</h3>
-                  <div className="item-meta">
-                    <span className="item-category">{item.category}</span>
-                    <span className="item-separator">•</span>
-                    <span className="item-location">{item.location}</span>
+                  <div className="item-content">
+                    <h3 className="item-name">{item.item_name}</h3>
+                    <div className="item-meta">
+                      <span className="item-category">{item.category}</span>
+                      <span className="item-separator">•</span>
+                      <span className="item-location">{item.location}</span>
+                    </div>
+                    <div className="item-date">{getRelativeTime(item.created_at)}</div>
                   </div>
-                  <div className="item-date">{item.date}</div>
-                </div>
-                <Link to={`/items/${item.id}`} className="item-link">
-                  View Details
-                </Link>
-              </motion.div>
-            ))}
+                  <Link to={`/items/${item.id}`} className="item-link">
+                    View Details
+                  </Link>
+                </motion.div>
+              ))
+            )}
           </div>
 
           <motion.div
