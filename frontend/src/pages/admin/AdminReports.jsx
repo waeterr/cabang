@@ -23,7 +23,7 @@ const AdminReports = () => {
   const fetchReports = async () => {
     setIsLoading(true);
     try {
-      const data = await getAdminReports({ status: filter });
+      const data = await getAdminReports(filter === 'all' ? {} : { status: filter });
       setReports(data.data || []);
     } catch (error) {
       toast.error('Failed to load reports');

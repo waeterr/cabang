@@ -18,6 +18,7 @@ import ItemDetail from './pages/items/ItemDetail';
 import CreateClaim from './pages/claims/CreateClaim';
 import MyClaims from './pages/claims/MyClaims';
 import CreateReport from './pages/reports/CreateReport';
+import MyReports from './pages/reports/MyReports';
 
 
 function App() {
@@ -84,6 +85,14 @@ function App() {
         element={(
           <VerifiedRoute>
             <CreateReport />
+          </VerifiedRoute>
+        )}
+      />
+      <Route
+        path="/reports/my"
+        element={(
+          <VerifiedRoute>
+            <MyReports />
           </VerifiedRoute>
         )}
       />
