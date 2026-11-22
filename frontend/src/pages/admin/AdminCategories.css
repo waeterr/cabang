@@ -1,0 +1,20 @@
+.admin-categories-page { min-height: 100vh; padding: 7rem 0 4rem; background: var(--bg-primary); }
+.admin-categories-container { width: min(900px, calc(100% - 3rem)); margin: 0 auto; }
+.admin-categories-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+.admin-categories-icon { display: grid; place-items: center; width: 3.75rem; height: 3.75rem; color: var(--bg-primary); background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan)); border-radius: 1rem; }
+.admin-categories-header h1 { margin: 0 0 .4rem; color: var(--text-primary); font-size: clamp(2rem, 4vw, 2.75rem); }
+.admin-categories-header p { margin: 0; color: var(--text-secondary); }
+.category-form { display: flex; gap: .75rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.category-form input { flex: 1; min-width: 180px; padding: .75rem 1rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: .875rem; color: var(--text-primary); outline: 0; }
+.category-form button { display: inline-flex; align-items: center; gap: .4rem; padding: .75rem 1.25rem; background: var(--accent-primary); border: 1px solid var(--accent-primary); border-radius: .875rem; color: var(--bg-primary); font-weight: 700; cursor: pointer; transition: .2s ease; }
+.category-form button:hover:not(:disabled) { background: #9bc4ff; }
+.category-form button:disabled { opacity: .6; cursor: not-allowed; }
+.category-form .category-cancel { background: transparent; border-color: var(--glass-border); color: var(--text-secondary); }
+.categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .75rem; }
+.category-card { display: flex; align-items: center; gap: .75rem; padding: 1rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: .875rem; color: var(--accent-cyan); backdrop-filter: blur(20px); }
+.category-card strong { flex: 1; color: var(--text-primary); font-weight: 600; }
+.category-actions { display: flex; gap: .4rem; }
+.category-actions button { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: .5rem; border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: .2s ease; }
+.category-actions button:hover { color: var(--accent-primary); }
+.category-actions .category-delete:hover { background: var(--danger); border-color: var(--danger); color: white; }
+@media (max-width: 600px) { .admin-categories-page { padding-top: 6rem; }.admin-categories-container { width: calc(100% - 2rem); }.categories-grid { grid-template-columns: 1fr; } }
