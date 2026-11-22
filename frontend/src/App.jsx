@@ -12,6 +12,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import VerifyKTM from './pages/admin/VerifyKTM';
 import AdminReports from './pages/admin/AdminReports';
 import AdminClaims from './pages/admin/AdminClaims';
+import AdminUsers from './pages/admin/AdminUsers';
 import Dashboard from './pages/student/Dashboard';
 import BrowseItems from './pages/items/BrowseItems';
 import ItemDetail from './pages/items/ItemDetail';
@@ -126,6 +127,14 @@ function App() {
         element={(
           <AdminRoute>
             <AdminClaims />
+          </AdminRoute>
+        )}
+      />
+      <Route
+        path="/admin/users"
+        element={(
+          <AdminRoute>
+            <AdminUsers />
           </AdminRoute>
         )}
       />
