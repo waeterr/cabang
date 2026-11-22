@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Claim;
+use App\Models\Report;
 use Illuminate\Http\Request;
 
 class ClaimController extends Controller
@@ -65,6 +66,16 @@ class ClaimController extends Controller
         $claim->report->update([
             'status' => 'resolved',
         ]);
+
+        // Close the claimant's own lost reports for the same item name so the
+        // public lost list does not keep a dangling entry after the reunion.
+        Report::where('user_id', $claim->user_id)
+            ->where('type', 'lost')
+            ->whereIn('status', ['pending', 'approved'])
+            ->where('item_name', $claim->report->item_name)
+            ->update([
+                'status' => 'resolved',
+            ]);
 
         return response()->json([
             'message' => 'Claim approved successfully',
