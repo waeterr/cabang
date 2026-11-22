@@ -6,10 +6,12 @@ import { getAdminReports, approveReport, rejectReport } from '../../api/admin';
 import { getStorageUrl, formatDate } from '../../utils/helpers';
 import Navbar from '../../components/common/Navbar';
 import AmbientBackground from '../../components/common/AmbientBackground';
+import Pagination from '../../components/common/Pagination';
 import './AdminReports.css';
 
 const AdminReports = () => {
   const [reports, setReports] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -17,14 +19,19 @@ const AdminReports = () => {
   const [filter, setFilter] = useState('pending');
 
   useEffect(() => {
-    fetchReports();
+    fetchReports(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  const fetchReports = async () => {
+  const fetchReports = async (page = 1) => {
     setIsLoading(true);
     try {
-      const data = await getAdminReports(filter === 'all' ? {} : { status: filter });
+      const data = await getAdminReports({
+        ...(filter === 'all' ? {} : { status: filter }),
+        page,
+      });
       setReports(data.data || []);
+      setMeta(data);
     } catch (error) {
       toast.error('Failed to load reports');
     } finally {
@@ -198,6 +205,8 @@ const AdminReports = () => {
           </div>
         )}
       </div>
+
+      <Pagination meta={meta} onPageChange={(page) => { fetchReports(page); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
 
       {/* Modal */}
       {selectedReport && (

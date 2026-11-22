@@ -11,6 +11,7 @@ import {
 import { handleApiError } from '../../utils/helpers';
 import AmbientBackground from '../../components/common/AmbientBackground';
 import Navbar from '../../components/common/Navbar';
+import Pagination from '../../components/common/Pagination';
 import './AdminUsers.css';
 
 const statusLabel = {
@@ -21,12 +22,13 @@ const statusLabel = {
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     setIsLoading(true);
     try {
       const params = {};
@@ -36,8 +38,10 @@ const AdminUsers = () => {
       if (search.trim()) {
         params.search = search.trim();
       }
+      params.page = page;
       const data = await getUsers(params);
       setUsers(data.data || []);
+      setMeta(data);
     } catch (error) {
       toast.error(handleApiError(error));
     } finally {
@@ -46,7 +50,7 @@ const AdminUsers = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
@@ -55,7 +59,7 @@ const AdminUsers = () => {
     try {
       await action(id);
       toast.success(successMessage);
-      fetchUsers();
+      fetchUsers(meta?.current_page || 1);
     } catch (error) {
       toast.error(handleApiError(error));
     } finally {
@@ -87,7 +91,7 @@ const AdminUsers = () => {
           className="admin-users-toolbar"
           onSubmit={(event) => {
             event.preventDefault();
-            fetchUsers();
+            fetchUsers(1);
           }}
         >
           <div className="admin-users-search">
@@ -185,6 +189,14 @@ const AdminUsers = () => {
             ))}
           </div>
         )}
+
+        <Pagination
+          meta={meta}
+          onPageChange={(page) => {
+            fetchUsers(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </main>
     </div>
   );

@@ -7,11 +7,13 @@ import { getReports } from '../../api/reports';
 import { getCategories } from '../../api/categories';
 import Navbar from '../../components/common/Navbar';
 import AmbientBackground from '../../components/common/AmbientBackground';
+import Pagination from '../../components/common/Pagination';
 import { getStorageUrl, formatDate } from '../../utils/helpers';
 import './BrowseItems.css';
 
 const BrowseItems = () => {
   const [items, setItems] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -36,16 +38,18 @@ const BrowseItems = () => {
     }
   };
 
-  const fetchItems = async () => {
+  const fetchItems = async (page = 1) => {
     setIsLoading(true);
     try {
       const response = await getReports({
         type: filters.type,
-        category_id: filters.category_id,
-        location: filters.location,
-        search: filters.search,
+        category: categories.find((category) => category.id === Number(filters.category_id))?.name || undefined,
+        location: filters.location || undefined,
+        search: filters.search || undefined,
+        page,
       });
       setItems(response.data || []);
+      setMeta(response);
     } catch (error) {
       toast.error('Failed to load items');
     } finally {
@@ -55,7 +59,12 @@ const BrowseItems = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchItems();
+    fetchItems(1);
+  };
+
+  const handlePageChange = (page) => {
+    fetchItems(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleFilterChange = (key, value) => {
@@ -192,7 +201,7 @@ const BrowseItems = () => {
               </div>
 
               <div className="filters-actions">
-                <button onClick={fetchItems} className="filter-apply">
+                <button onClick={() => fetchItems(1)} className="filter-apply">
                   Apply Filters
                 </button>
                 <button onClick={clearFilters} className="filter-clear">
@@ -274,6 +283,8 @@ const BrowseItems = () => {
               ))}
             </div>
           )}
+
+          <Pagination meta={meta} onPageChange={handlePageChange} />
         </div>
       </div>
     </div>

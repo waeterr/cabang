@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Award, FileText, Shield, UserCheck, Users } from 'lucide-react';
+import { Award, FileText, Shield, Tag, UserCheck, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import { getDashboardStats, getUnverifiedUsers } from '../../api/admin';
@@ -45,6 +45,7 @@ const AdminDashboard = () => {
     { icon: FileText, label: 'Moderate Reports', description: 'Kelola laporan masuk', to: '/admin/reports', color: 'cyan' },
     { icon: Award, label: 'Verify Claims', description: 'Verifikasi klaim barang', to: '/admin/claims', color: 'violet' },
     { icon: Users, label: 'Manage Users', description: 'Kelola mahasiswa', to: '/admin/users', color: 'green' },
+    { icon: Tag, label: 'Manage Categories', description: 'Atur kategori barang', to: '/admin/categories', color: 'blue' },
   ];
 
   return (
