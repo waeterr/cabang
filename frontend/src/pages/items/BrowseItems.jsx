@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, MapPin, Calendar, Package, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getReports } from '../../api/reports';
 import { getCategories } from '../../api/categories';
 import Navbar from '../../components/common/Navbar';
@@ -12,6 +12,11 @@ import { getStorageUrl, formatDate } from '../../utils/helpers';
 import './BrowseItems.css';
 
 const BrowseItems = () => {
+  const location = useLocation();
+  const itemType = location.pathname.endsWith('/found') ? 'found' : 'lost';
+  const isLost = itemType === 'lost';
+  const titleWord = isLost ? 'Lost' : 'Found';
+
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -21,12 +26,15 @@ const BrowseItems = () => {
     search: '',
     category_id: '',
     location: '',
-    type: 'lost',
   });
 
   useEffect(() => {
+    fetchItems(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemType]);
+
+  useEffect(() => {
     fetchCategories();
-    fetchItems();
   }, []);
 
   const fetchCategories = async () => {
@@ -42,7 +50,7 @@ const BrowseItems = () => {
     setIsLoading(true);
     try {
       const response = await getReports({
-        type: filters.type,
+        type: itemType,
         category: categories.find((category) => category.id === Number(filters.category_id))?.name || undefined,
         location: filters.location || undefined,
         search: filters.search || undefined,
@@ -76,8 +84,9 @@ const BrowseItems = () => {
       search: '',
       category_id: '',
       location: '',
-      type: 'lost',
     });
+    setIsLoading(true);
+    setTimeout(() => fetchItems(1), 0);
   };
 
   return (
@@ -93,10 +102,10 @@ const BrowseItems = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="browse-title">
-            <span className="text-gradient">Browse</span> Lost Items
+            <span className="text-gradient">{titleWord}</span> Items
           </h1>
           <p className="browse-subtitle">
-            Cari barang hilang yang dilaporkan di Perpustakaan UNDIP
+            {isLost ? 'Cari barang hilang yang dilaporkan' : 'Lihat barang temuan yang terdaftar'} di Perpustakaan UNDIP
           </p>
         </motion.div>
 
@@ -151,21 +160,6 @@ const BrowseItems = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="filters-grid">
-                <div className="filter-group">
-                  <label htmlFor="type" className="filter-label">
-                    Type
-                  </label>
-                  <select
-                    id="type"
-                    value={filters.type}
-                    onChange={(e) => handleFilterChange('type', e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="lost">Lost</option>
-                    <option value="found">Found</option>
-                  </select>
-                </div>
-
                 <div className="filter-group">
                   <label htmlFor="category" className="filter-label">
                     Category
@@ -229,7 +223,9 @@ const BrowseItems = () => {
               <Package size={64} />
               <h3 className="empty-title">No items found</h3>
               <p className="empty-description">
-                Coba ubah filter atau kata kunci pencarian Anda
+                {isLost
+                  ? 'Belum ada laporan barang hilang yang cocok dengan pencarian Anda'
+                  : 'Belum ada barang temuan yang cocok dengan pencarian Anda'}
               </p>
             </motion.div>
           ) : (
@@ -254,8 +250,8 @@ const BrowseItems = () => {
                           <Package size={48} />
                         </div>
                       )}
-                      <div className={`item-badge ${item.type}`}>
-                        {item.type === 'lost' ? 'Lost' : 'Found'}
+                      <div className={`item-badge ${itemType}`}>
+                        {titleWord}
                       </div>
                     </div>
 

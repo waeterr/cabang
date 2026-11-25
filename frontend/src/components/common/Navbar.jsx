@@ -41,9 +41,15 @@ const Navbar = () => {
 
   const publicLinks = [
     { path: '/', label: 'Home' },
-    { path: '/items/lost', label: 'Lost Items' },
-    { path: '/items/found', label: 'Found Items' },
+    { path: '/items/lost', label: 'Lost' },
+    { path: '/items/found', label: 'Found' },
   ];
+
+  const isAdmin = user?.role === 'admin';
+
+  const reportAction = isAdmin
+    ? { to: '/admin/reports/found/create', label: 'Tambah Barang Ditemukan' }
+    : { to: '/reports/create', label: 'Laporkan Barang Hilang' };
 
   return (
     <>
@@ -89,6 +95,13 @@ const Navbar = () => {
               <>
                 <Link to={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'} className="nav-cta">
                   <span>Dashboard</span>
+                </Link>
+                <Link
+                  to={isAdmin ? '/admin/dashboard' : '/reports/create'}
+                  className="nav-action-link"
+                  title={reportAction.label}
+                >
+                  {isAdmin ? 'Tambah Ditemukan' : 'Lapor Hilang'}
                 </Link>
                 <button onClick={handleLogout} className="nav-logout" title="Logout">
                   <LogOut size={18} />
@@ -145,6 +158,13 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
+                  </Link>
+                  <Link
+                    to={isAdmin ? '/admin/reports/found/create' : '/reports/create'}
+                    className="mobile-menu-link"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {reportAction.label}
                   </Link>
                   <button
                     onClick={() => {

@@ -125,6 +125,18 @@ export const deleteAdminReport = async (id) => {
 };
 
 /**
+ * Register a found item (admin)
+ */
+export const createFoundReport = async (formData) => {
+  const response = await apiClient.post('/admin/reports', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
  * Get all claims (admin)
  */
 export const getAdminClaims = async (params = {}) => {

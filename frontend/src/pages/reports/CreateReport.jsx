@@ -18,7 +18,6 @@ const CreateReport = () => {
     item_name: '',
     description: '',
     category_id: '',
-    type: 'lost',
     location: '',
     date_lost: '',
     image: null,
@@ -76,7 +75,6 @@ const CreateReport = () => {
     data.append('description', formData.description);
     const selectedCategory = categories.find(c => c.id === parseInt(formData.category_id));
     data.append('category', selectedCategory?.name || '');
-    data.append('type', formData.type);
     data.append('location', formData.location);
     if (formData.date_lost) {
       data.append('date', formData.date_lost);
@@ -147,24 +145,6 @@ const CreateReport = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="type" className="form-label">
-                <FileText size={18} />
-                <span>Type *</span>
-              </label>
-              <select
-                id="type"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="form-select"
-                required
-              >
-                <option value="lost">Lost</option>
-                <option value="found">Found</option>
-              </select>
-            </div>
-
-            <div className="form-group">
               <label htmlFor="category_id" className="form-label">
                 <FileText size={18} />
                 <span>Category *</span>
@@ -206,7 +186,7 @@ const CreateReport = () => {
             <div className="form-group">
               <label htmlFor="date_lost" className="form-label">
                 <Calendar size={18} />
-                <span>Date Lost/Found</span>
+                <span>Date Lost</span>
               </label>
               <input
                 type="date"

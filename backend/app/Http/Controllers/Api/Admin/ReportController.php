@@ -111,6 +111,39 @@ class ReportController extends Controller
     }
 
     /**
+     * Store a new found item report (admin only).
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'item_name' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'location' => ['required', 'string', 'max:255'],
+            'date' => ['required', 'date'],
+            'additional_info' => ['nullable', 'string'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ]);
+
+        // Store photo if provided
+        if ($request->hasFile('photo')) {
+            $validated['photo_path'] = $request->file('photo')->store('reports', 'public');
+        }
+
+        // Admin creates found item reports; they are auto-approved
+        $report = $request->user()->reports()->create([
+            ...$validated,
+            'type' => 'found',
+            'status' => 'approved',
+        ]);
+
+        return response()->json([
+            'message' => 'Found item report created successfully',
+            'report' => $report->load('user'),
+        ], 201);
+    }
+
+    /**
      * Remove the specified report.
      */
     public function destroy(string $id)

@@ -56,7 +56,6 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'type' => ['required', 'in:lost,found'],
             'item_name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
@@ -71,8 +70,11 @@ class ReportController extends Controller
             $validated['photo_path'] = $request->file('photo')->store('reports', 'public');
         }
 
+        // Students can only report lost items. Found items are registered by
+        // library staff through the admin endpoint.
         $report = $request->user()->reports()->create([
             ...$validated,
+            'type' => 'lost',
             'status' => 'pending',
         ]);
 
@@ -116,7 +118,6 @@ class ReportController extends Controller
         }
 
         $validated = $request->validate([
-            'type' => ['sometimes', 'in:lost,found'],
             'item_name' => ['sometimes', 'string', 'max:255'],
             'category' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'string'],
