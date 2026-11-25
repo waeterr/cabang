@@ -92,6 +92,24 @@
   --blur-xl: 24px;
 }
 
+:root[data-theme='light'] {
+  --bg-primary: #F5F8FF;
+  --bg-secondary: #E8EEF9;
+  --text-primary: #15213B;
+  --text-secondary: #586782;
+  --accent-primary: #2868C7;
+  --accent-secondary: #7758CA;
+  --accent-cyan: #138FA5;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(31, 57, 102, 0.16);
+  --glass-highlight: rgba(31, 57, 102, 0.25);
+  --glass-hover: rgba(255, 255, 255, 0.9);
+  --shadow-sm: 0 2px 8px rgba(24, 44, 84, 0.08);
+  --shadow-md: 0 4px 16px rgba(24, 44, 84, 0.11);
+  --shadow-lg: 0 8px 32px rgba(24, 44, 84, 0.14);
+  --shadow-xl: 0 16px 48px rgba(24, 44, 84, 0.18);
+}
+
 /* Global styles */
 * {
   margin: 0;

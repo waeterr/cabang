@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -71,6 +72,9 @@ class UserController extends Controller
             'rejection_reason' => null,
         ]);
 
+        ActivityLogger::log($user, 'ktm.approved', 'Verifikasi KTM disetujui.');
+        ActivityLogger::notify($user, 'ktm.approved', 'KTM disetujui', 'Verifikasi KTM Anda disetujui. Anda sekarang dapat membuat laporan kehilangan dan mengajukan klaim.', '/dashboard');
+
         return response()->json([
             'message' => 'User verified successfully',
             'user' => $user,
@@ -93,6 +97,9 @@ class UserController extends Controller
             'verification_status' => 'rejected',
             'rejection_reason' => $validated['rejection_reason'],
         ]);
+
+        ActivityLogger::log($user, 'ktm.rejected', 'Verifikasi KTM ditolak.');
+        ActivityLogger::notify($user, 'ktm.rejected', 'KTM ditolak', 'Verifikasi KTM Anda ditolak. Alasan: '.$validated['rejection_reason'], '/verification-pending');
 
         return response()->json([
             'message' => 'User verification rejected',

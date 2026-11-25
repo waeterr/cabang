@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\VerifyEmailMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
@@ -39,8 +42,16 @@ class AuthController extends Controller
             'verification_status' => 'pending',
         ]);
 
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
+
+        Mail::to($user->email)->send(new VerifyEmailMail($user, $verificationUrl));
+
         return response()->json([
-            'message' => 'Registration successful. Please wait for admin verification.',
+            'message' => 'Registration successful. Check your email to verify your account, then wait for KTM verification.',
             'user' => $user,
         ], 201);
     }

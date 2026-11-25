@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ClaimController;
 use App\Http\Controllers\Api\ClaimMessageController;
+use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\InboxController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,11 @@ Route::get('/ping', function () {
         'message' => 'API CaBang - Sistem Barang Hilang UNDIP',
     ]);
 });
+
+// Signed email verification link (opened from the email)
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
 
 // Authentication routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -31,6 +37,7 @@ Route::get('/reports/{id}', [ReportController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/email/resend', [EmailVerificationController::class, 'resend']);
     Route::get('/inbox', [InboxController::class, 'index']);
     Route::get('/inbox/unread-count', [InboxController::class, 'unreadCount']);
     Route::put('/inbox/read-all', [InboxController::class, 'markAllAsRead']);

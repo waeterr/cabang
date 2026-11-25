@@ -35,3 +35,11 @@ export const getCurrentUser = async () => {
   const response = await apiClient.get('/user');
   return response.data;
 };
+
+/**
+ * Resend email verification link
+ */
+export const resendEmailVerification = async () => {
+  const response = await apiClient.post('/email/resend');
+  return response.data;
+};

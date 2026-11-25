@@ -18,6 +18,7 @@ import CreateFoundReport from './pages/admin/CreateFoundReport';
 import Dashboard from './pages/student/Dashboard';
 import Inbox from './pages/Inbox';
 import HistoryPage from './pages/History';
+import VerifyEmail from './pages/VerifyEmail';
 import BrowseItems from './pages/items/BrowseItems';
 import ItemDetail from './pages/items/ItemDetail';
 import CreateClaim from './pages/claims/CreateClaim';
@@ -53,6 +54,14 @@ function App() {
         element={(
           <PrivateRoute>
             <VerificationPending />
+          </PrivateRoute>
+        )}
+      />
+      <Route
+        path="/verify-email"
+        element={(
+          <PrivateRoute>
+            <VerifyEmail />
           </PrivateRoute>
         )}
       />

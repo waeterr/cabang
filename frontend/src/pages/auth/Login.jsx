@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -10,12 +10,22 @@ import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const verified = searchParams.get('verified');
+    if (verified === '1') {
+      toast.success('Email berhasil diverifikasi. Silakan masuk.');
+    } else if (verified === 'invalid') {
+      toast.error('Tautan verifikasi tidak valid atau kedaluwarsa.');
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setFormData({

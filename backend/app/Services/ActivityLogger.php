@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\NotificationMail;
 use App\Models\Activity;
 use App\Models\Notification;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class ActivityLogger
 {
@@ -30,12 +32,20 @@ class ActivityLogger
      */
     public static function notify(User $user, string $type, string $title, string $body, ?string $link = null): Notification
     {
-        return Notification::create([
+        $notification = Notification::create([
             'user_id' => $user->id,
             'type' => $type,
             'title' => $title,
             'body' => $body,
             'link' => $link,
         ]);
+
+        Mail::to($user->email)->send(new NotificationMail(
+            $title,
+            $body,
+            $link ? rtrim((string) config('mail.frontend_url'), '/').$link : null,
+        ));
+
+        return $notification;
     }
 }

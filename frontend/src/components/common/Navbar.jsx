@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, LogOut, Menu, X } from 'lucide-react';
+import { Bell, LogOut, Menu, Moon, Sun, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { logout } from '../../api/auth';
 import { getUnreadCount } from '../../api/inbox';
 import useAuthStore from '../../store/authStore';
+import useThemeStore from '../../store/themeStore';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -111,6 +114,15 @@ const Navbar = () => {
           </div>
 
           <div className="navbar-actions">
+            <button
+              aria-label={theme === 'dark' ? 'Aktifkan tema terang' : 'Aktifkan tema gelap'}
+              className="nav-theme-toggle"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
+              type="button"
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             {isAuthenticated ? (
               <>
                 <Link to={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'} className="nav-cta">
@@ -175,6 +187,10 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+
+              <button className="mobile-menu-link" onClick={toggleTheme} type="button">
+                {theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
+              </button>
 
               {isAuthenticated ? (
                 <>

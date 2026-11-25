@@ -77,8 +77,8 @@ const Register = () => {
       const { user, token } = await register(data);
 
       setAuth(user, token);
-      toast.success('Registration successful! Please wait for verification.');
-      navigate('/verification-pending');
+      toast.success('Pendaftaran berhasil! Periksa email untuk verifikasi, lalu tunggu verifikasi KTM.');
+      navigate('/verify-email');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
