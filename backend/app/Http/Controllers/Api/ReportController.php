@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -77,6 +78,15 @@ class ReportController extends Controller
             'type' => 'lost',
             'status' => 'pending',
         ]);
+
+        ActivityLogger::log(
+            $request->user(),
+            'report.created',
+            'Membuat laporan kehilangan: '.$report->item_name,
+            Report::class,
+            $report->id,
+            ['item_name' => $report->item_name, 'type' => 'lost', 'status' => 'pending'],
+        );
 
         return response()->json([
             'message' => 'Report created successfully. Waiting for admin approval.',

@@ -49,6 +49,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the in-app notifications for the user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
+     * Get the activity history for the user.
+     */
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
+    /**
      * Check if user is admin.
      */
     public function isAdmin(): bool

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Claim;
 use App\Models\Report;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class ClaimController extends Controller
@@ -77,6 +78,9 @@ class ClaimController extends Controller
                 'status' => 'resolved',
             ]);
 
+        ActivityLogger::log($claim->user, 'claim.approved', 'Klaim disetujui: '.$claim->report->item_name, Claim::class, $claim->id);
+        ActivityLogger::notify($claim->user, 'claim.approved', 'Klaim disetujui', 'Klaim Anda untuk '.$claim->report->item_name.' disetujui. Silakan ambil barang di perpustakaan.', '/claims/my');
+
         return response()->json([
             'message' => 'Claim approved successfully',
             'claim' => $claim->load(['report', 'user']),
@@ -98,6 +102,9 @@ class ClaimController extends Controller
             'status' => 'rejected',
             'rejection_reason' => $validated['rejection_reason'],
         ]);
+
+        ActivityLogger::log($claim->user, 'claim.rejected', 'Klaim ditolak: '.($claim->report?->item_name ?? 'Barang'), Claim::class, $claim->id);
+        ActivityLogger::notify($claim->user, 'claim.rejected', 'Klaim ditolak', 'Klaim Anda ditolak. Alasan: '.$validated['rejection_reason'], '/claims/my');
 
         return response()->json([
             'message' => 'Claim rejected',

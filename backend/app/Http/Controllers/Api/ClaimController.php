@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Claim;
 use App\Models\Report;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -78,6 +79,15 @@ class ClaimController extends Controller
             'contact_info' => $validated['contact_info'],
             'status' => 'pending',
         ]);
+
+        ActivityLogger::log(
+            $request->user(),
+            'claim.created',
+            'Mengajukan klaim: '.$report->item_name,
+            Claim::class,
+            $claim->id,
+            ['item_name' => $report->item_name, 'status' => 'pending'],
+        );
 
         return response()->json([
             'message' => 'Claim submitted successfully. Waiting for admin approval.',

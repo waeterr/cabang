@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Menu, X } from 'lucide-react';
+import { Bell, LogOut, Menu, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { logout } from '../../api/auth';
+import { getUnreadCount } from '../../api/inbox';
 import useAuthStore from '../../store/authStore';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -36,6 +38,24 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUnreadCount(0);
+      return undefined;
+    }
+
+    const loadUnreadCount = () => {
+      getUnreadCount()
+        .then((data) => setUnreadCount(data.unread_count || 0))
+        .catch(() => {});
+    };
+
+    loadUnreadCount();
+    const interval = window.setInterval(loadUnreadCount, 30000);
+
+    return () => window.clearInterval(interval);
+  }, [isAuthenticated]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -103,6 +123,12 @@ const Navbar = () => {
                 >
                   {isAdmin ? 'Tambah Ditemukan' : 'Lapor Hilang'}
                 </Link>
+                <Link className="nav-inbox" title="Inbox" to="/inbox">
+                  <Bell size={18} />
+                  {unreadCount > 0 && (
+                    <span className="nav-inbox-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  )}
+                </Link>
                 <button onClick={handleLogout} className="nav-logout" title="Logout">
                   <LogOut size={18} />
                 </button>
@@ -165,6 +191,20 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {reportAction.label}
+                  </Link>
+                  <Link
+                    to="/inbox"
+                    className="mobile-menu-link"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Inbox{unreadCount > 0 ? ` (${unreadCount})` : ''}
+                  </Link>
+                  <Link
+                    to="/history"
+                    className="mobile-menu-link"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Riwayat
                   </Link>
                   <button
                     onClick={() => {

@@ -16,6 +16,8 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminCategories from './pages/admin/AdminCategories';
 import CreateFoundReport from './pages/admin/CreateFoundReport';
 import Dashboard from './pages/student/Dashboard';
+import Inbox from './pages/Inbox';
+import HistoryPage from './pages/History';
 import BrowseItems from './pages/items/BrowseItems';
 import ItemDetail from './pages/items/ItemDetail';
 import CreateClaim from './pages/claims/CreateClaim';
@@ -63,10 +65,25 @@ function App() {
           </VerifiedRoute>
         )}
       />
+      <Route
+        path="/inbox"
+        element={(
+          <PrivateRoute>
+            <Inbox />
+          </PrivateRoute>
+        )}
+      />
+      <Route
+        path="/history"
+        element={(
+          <PrivateRoute>
+            <HistoryPage />
+          </PrivateRoute>
+        )}
+      />
 
       <Route path="/items/lost" element={<BrowseItems />} />
-      <Route path="/items/found" element={<BrowseItems />} />
-      <Route path="/items/:id" element={<ItemDetail />} />
+      <Route path="/items/found" element={<BrowseItems />} />      <Route path="/items/:id" element={<ItemDetail />} />
       <Route
         path="/claims/create/:id"
         element={(

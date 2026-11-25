@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ClaimController;
 use App\Http\Controllers\Api\ClaimMessageController;
+use App\Http\Controllers\Api\InboxController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,11 @@ Route::get('/reports/{id}', [ReportController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/inbox', [InboxController::class, 'index']);
+    Route::get('/inbox/unread-count', [InboxController::class, 'unreadCount']);
+    Route::put('/inbox/read-all', [InboxController::class, 'markAllAsRead']);
+    Route::put('/inbox/{id}/read', [InboxController::class, 'markAsRead']);
+    Route::get('/activities/my', [InboxController::class, 'activities']);
 
     // Verified user routes
     Route::middleware('verified')->group(function () {

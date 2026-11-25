@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -65,6 +66,9 @@ class ReportController extends Controller
             'rejection_reason' => null,
         ]);
 
+        ActivityLogger::log($report->user, 'report.approved', 'Laporan disetujui: '.$report->item_name, Report::class, $report->id);
+        ActivityLogger::notify($report->user, 'report.approved', 'Laporan disetujui', 'Laporan kehilangan '.$report->item_name.' telah disetujui.', '/reports/my');
+
         return response()->json([
             'message' => 'Report approved successfully',
             'report' => $report->load('user'),
@@ -87,6 +91,9 @@ class ReportController extends Controller
             'rejection_reason' => $validated['rejection_reason'],
         ]);
 
+        ActivityLogger::log($report->user, 'report.rejected', 'Laporan ditolak: '.$report->item_name, Report::class, $report->id);
+        ActivityLogger::notify($report->user, 'report.rejected', 'Laporan ditolak', 'Laporan '.$report->item_name.' ditolak. Lihat alasan pada riwayat laporan.', '/reports/my');
+
         return response()->json([
             'message' => 'Report rejected',
             'report' => $report->load('user'),
@@ -103,6 +110,9 @@ class ReportController extends Controller
         $report->update([
             'status' => 'resolved',
         ]);
+
+        ActivityLogger::log($report->user, 'report.resolved', 'Laporan ditandai selesai: '.$report->item_name, Report::class, $report->id);
+        ActivityLogger::notify($report->user, 'report.resolved', 'Laporan selesai', 'Laporan '.$report->item_name.' telah ditandai selesai.', '/reports/my');
 
         return response()->json([
             'message' => 'Report marked as resolved',
@@ -136,6 +146,15 @@ class ReportController extends Controller
             'type' => 'found',
             'status' => 'approved',
         ]);
+
+        ActivityLogger::log(
+            $request->user(),
+            'report.found_created',
+            'Mendaftarkan barang temuan: '.$report->item_name,
+            Report::class,
+            $report->id,
+            ['item_name' => $report->item_name, 'type' => 'found'],
+        );
 
         return response()->json([
             'message' => 'Found item report created successfully',
