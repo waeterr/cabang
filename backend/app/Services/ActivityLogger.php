@@ -7,6 +7,7 @@ use App\Models\Activity;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class ActivityLogger
 {
@@ -47,5 +48,23 @@ class ActivityLogger
         ));
 
         return $notification;
+    }
+
+    /**
+     * Notify every admin account about a student action that needs attention.
+     * Failures are swallowed so that a mail transport problem never blocks the
+     * student's request.
+     */
+    public static function notifyAdmins(string $type, string $title, string $body, ?string $link = null): void
+    {
+        User::where('role', 'admin')
+            ->get()
+            ->each(function (User $admin) use ($type, $title, $body, $link): void {
+                try {
+                    self::notify($admin, $type, $title, $body, $link);
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
+            });
     }
 }

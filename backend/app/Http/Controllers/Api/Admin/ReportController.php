@@ -218,6 +218,73 @@ class ReportController extends Controller
     }
 
     /**
+     * Set a public removal notice on a found item report to inform visitors
+     * that the item will be archived or disposed of if not claimed by the deadline.
+     */
+    public function setRemovalNotice(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'deadline' => ['required', 'date', 'after:today'],
+            'notice' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $report = Report::findOrFail($id);
+
+        if ($report->type !== 'found') {
+            return response()->json([
+                'message' => 'Removal notices apply to found items only',
+            ], 422);
+        }
+
+        $report->update([
+            'removal_notice_at' => now(),
+            'removal_deadline_at' => $validated['deadline'],
+            'removal_notice' => $validated['notice'],
+        ]);
+
+        ActivityLogger::log(
+            $request->user(),
+            'report.removal_notice',
+            'Mengumumkan penghapusan: '.$report->item_name,
+            Report::class,
+            $report->id,
+            ['deadline' => $validated['deadline']],
+        );
+
+        return response()->json([
+            'message' => 'Removal notice set successfully',
+            'report' => $report->load('user'),
+        ]);
+    }
+
+    /**
+     * Clear the removal notice from a report.
+     */
+    public function clearRemovalNotice(Request $request, string $id)
+    {
+        $report = Report::findOrFail($id);
+
+        $report->update([
+            'removal_notice_at' => null,
+            'removal_deadline_at' => null,
+            'removal_notice' => null,
+        ]);
+
+        ActivityLogger::log(
+            $request->user(),
+            'report.removal_notice_cleared',
+            'Membatalkan pengumuman penghapusan: '.$report->item_name,
+            Report::class,
+            $report->id,
+        );
+
+        return response()->json([
+            'message' => 'Removal notice cleared',
+            'report' => $report->load('user'),
+        ]);
+    }
+
+    /**
      * Remove the specified report.
      */
     public function destroy(string $id)

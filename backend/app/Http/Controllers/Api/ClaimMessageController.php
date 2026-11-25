@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Claim;
 use App\Models\ClaimMessage;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class ClaimMessageController extends Controller
@@ -52,6 +53,15 @@ class ClaimMessageController extends Controller
             'user_id' => $request->user()->id,
             'message' => $validated['message'],
         ]);
+
+        if ($request->user()->role !== 'admin') {
+            ActivityLogger::notifyAdmins(
+                'claim.message',
+                'Pesan klaim baru',
+                $request->user()->name.' mengirim pesan pada klaim '.$claim->report?->item_name.'.',
+                '/admin/claims',
+            );
+        }
 
         return response()->json([
             'message' => 'Message sent successfully',

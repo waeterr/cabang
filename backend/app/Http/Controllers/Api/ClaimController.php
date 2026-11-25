@@ -88,6 +88,12 @@ class ClaimController extends Controller
             $claim->id,
             ['item_name' => $report->item_name, 'status' => 'pending'],
         );
+        ActivityLogger::notifyAdmins(
+            'claim.pending',
+            'Klaim baru diajukan',
+            $request->user()->name.' mengajukan klaim untuk '.$report->item_name.'.',
+            '/admin/claims',
+        );
 
         return response()->json([
             'message' => 'Claim submitted successfully. Waiting for admin approval.',

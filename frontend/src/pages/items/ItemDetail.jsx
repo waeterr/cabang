@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Calendar, Package, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
+import { MapPin, Calendar, Package, ArrowLeft, AlertCircle, CheckCircle, Megaphone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getReportById } from '../../api/reports';
 import { getStorageUrl, formatDate } from '../../utils/helpers';
@@ -171,6 +171,20 @@ const ItemDetail = () => {
               <div className="detail-additional">
                 <h2>Additional Information</h2>
                 <p>{item.additional_info}</p>
+              </div>
+            )}
+
+            {item.removal_deadline_at && (
+              <div className="detail-removal-notice">
+                <Megaphone size={20} />
+                <div>
+                  <h2>Pemberitahuan Penghapusan</h2>
+                  <p>
+                    Barang ini akan dihapus dari daftar bila tidak diklaim sebelum{' '}
+                    <strong>{formatDate(item.removal_deadline_at)}</strong>.
+                  </p>
+                  {item.removal_notice && <p>{item.removal_notice}</p>}
+                </div>
               </div>
             )}
 

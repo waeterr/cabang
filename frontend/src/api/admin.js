@@ -133,6 +133,22 @@ export const restoreReport = async (id) => {
 };
 
 /**
+ * Publish a public removal notice for a found item.
+ */
+export const setRemovalNotice = async (id, deadline, notice = null) => {
+  const response = await apiClient.post(`/admin/reports/${id}/removal-notice`, { deadline, notice });
+  return response.data;
+};
+
+/**
+ * Remove a public removal notice.
+ */
+export const clearRemovalNotice = async (id) => {
+  const response = await apiClient.delete(`/admin/reports/${id}/removal-notice`);
+  return response.data;
+};
+
+/**
  * Delete report (admin)
  */
 export const deleteAdminReport = async (id) => {

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Check, X, Eye, Archive, ArchiveRestore, Plus } from 'lucide-react';
+import { FileText, Check, X, Eye, Archive, ArchiveRestore, Plus, Megaphone, BellOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { getAdminReports, approveReport, rejectReport, archiveReport, restoreReport } from '../../api/admin';
+import { getAdminReports, approveReport, rejectReport, archiveReport, restoreReport, setRemovalNotice, clearRemovalNotice } from '../../api/admin';
 import { getStorageUrl, formatDate } from '../../utils/helpers';
 import Navbar from '../../components/common/Navbar';
 import AmbientBackground from '../../components/common/AmbientBackground';
@@ -19,6 +19,8 @@ const AdminReports = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [filter, setFilter] = useState('pending');
   const [archiveNote, setArchiveNote] = useState('');
+  const [removalDeadline, setRemovalDeadline] = useState('');
+  const [removalNote, setRemovalNote] = useState('');
 
   useEffect(() => {
     fetchReports(1);
@@ -100,6 +102,40 @@ const AdminReports = () => {
       fetchReports();
     } catch (error) {
       toast.error('Failed to restore report');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSetRemovalNotice = async (reportId) => {
+    if (!removalDeadline) {
+      toast.error('Tenggat wajib diisi');
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      await setRemovalNotice(reportId, removalDeadline, removalNote || null);
+      toast.success('Pengumuman penghapusan dipasang');
+      setSelectedReport(null);
+      setRemovalDeadline('');
+      setRemovalNote('');
+      fetchReports();
+    } catch (error) {
+      toast.error('Gagal memasang pengumuman');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleClearRemovalNotice = async (reportId) => {
+    setIsProcessing(true);
+    try {
+      await clearRemovalNotice(reportId);
+      toast.success('Pengumuman penghapusan dibatalkan');
+      setSelectedReport(null);
+      fetchReports();
+    } catch (error) {
+      toast.error('Gagal membatalkan pengumuman');
     } finally {
       setIsProcessing(false);
     }
@@ -209,6 +245,7 @@ const AdminReports = () => {
                   <h3 className="report-name">{report.item_name}</h3>
                   <p className="report-category">{report.category}</p>
                   <p className="report-description">{report.description}</p>
+                  {report.removal_deadline_at && <p className="removal-notice-chip"><Megaphone size={14} /> Diumumkan hingga {formatDate(report.removal_deadline_at)}</p>}
 
                   <div className="report-meta">
                     <div className="report-meta-item">
@@ -324,6 +361,27 @@ const AdminReports = () => {
                 </>
               )}
             </div>
+
+            {selectedReport.type === 'found' && selectedReport.status === 'approved' && !selectedReport.archived_at && (
+              <section className="removal-notice-form">
+                <h3><Megaphone size={18} /> Pengumuman penghapusan publik</h3>
+                <p>Ditampilkan pada barang temuan agar pengunjung dapat mengajukan klaim sebelum tenggat.</p>
+                {selectedReport.removal_deadline_at ? (
+                  <>
+                    <p className="removal-notice-active">Aktif hingga {formatDate(selectedReport.removal_deadline_at)}</p>
+                    <button className="btn-clear-removal-notice" disabled={isProcessing} onClick={() => handleClearRemovalNotice(selectedReport.id)} type="button"><BellOff size={18} /> Batalkan Pengumuman</button>
+                  </>
+                ) : (
+                  <>
+                    <label htmlFor="removal-deadline">Batas klaim</label>
+                    <input id="removal-deadline" min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)} onChange={(event) => setRemovalDeadline(event.target.value)} type="date" value={removalDeadline} />
+                    <label htmlFor="removal-note">Catatan publik (opsional)</label>
+                    <textarea id="removal-note" maxLength="500" onChange={(event) => setRemovalNote(event.target.value)} placeholder="Contoh: Barang akan diserahkan sesuai kebijakan perpustakaan setelah tenggat." rows={3} value={removalNote} />
+                    <button className="btn-set-removal-notice" disabled={isProcessing || !removalDeadline} onClick={() => handleSetRemovalNotice(selectedReport.id)} type="button"><Megaphone size={18} /> Umumkan Penghapusan</button>
+                  </>
+                )}
+              </section>
+            )}
 
             {selectedReport.status === 'pending' && (
               <div className="modal-actions">

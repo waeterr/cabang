@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\VerifyEmailMail;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -49,6 +50,13 @@ class AuthController extends Controller
         );
 
         Mail::to($user->email)->send(new VerifyEmailMail($user, $verificationUrl));
+
+        ActivityLogger::notifyAdmins(
+            'ktm.pending',
+            'Verifikasi KTM baru',
+            $user->name.' ('.$user->nim.') mendaftar dan menunggu verifikasi KTM.',
+            '/admin/verifications',
+        );
 
         return response()->json([
             'message' => 'Registration successful. Check your email to verify your account, then wait for KTM verification.',

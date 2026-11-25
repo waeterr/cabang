@@ -22,6 +22,9 @@ class Report extends Model
         'status',
         'rejection_reason',
         'archived_at',
+        'removal_notice_at',
+        'removal_deadline_at',
+        'removal_notice',
     ];
 
     protected function casts(): array
@@ -29,6 +32,8 @@ class Report extends Model
         return [
             'date' => 'date',
             'archived_at' => 'datetime',
+            'removal_notice_at' => 'datetime',
+            'removal_deadline_at' => 'datetime',
         ];
     }
 
@@ -86,5 +91,21 @@ class Report extends Model
     public function scopeFound($query)
     {
         return $query->where('type', 'found');
+    }
+
+    /**
+     * Determine whether the report carries a public removal notice.
+     */
+    public function hasRemovalNotice(): bool
+    {
+        return $this->removal_deadline_at !== null;
+    }
+
+    /**
+     * Determine whether the removal notice deadline has already passed.
+     */
+    public function isRemovalDeadlinePassed(): bool
+    {
+        return $this->removal_deadline_at !== null && $this->removal_deadline_at->isPast();
     }
 }

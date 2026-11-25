@@ -78,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/reports/{id}/resolve', [App\Http\Controllers\Api\Admin\ReportController::class, 'resolve']);
         Route::post('/reports/{id}/archive', [App\Http\Controllers\Api\Admin\ReportController::class, 'archive']);
         Route::post('/reports/{id}/restore', [App\Http\Controllers\Api\Admin\ReportController::class, 'restore']);
+        Route::post('/reports/{id}/removal-notice', [App\Http\Controllers\Api\Admin\ReportController::class, 'setRemovalNotice']);
+        Route::delete('/reports/{id}/removal-notice', [App\Http\Controllers\Api\Admin\ReportController::class, 'clearRemovalNotice']);
         Route::apiResource('reports', App\Http\Controllers\Api\Admin\ReportController::class)->only(['index', 'show', 'store', 'destroy']);
 
         // Claim management

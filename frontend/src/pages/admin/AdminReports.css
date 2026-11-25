@@ -564,4 +564,48 @@
 .btn-archive-report:hover, .btn-restore-report:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
 .archive-report-form { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
 .archive-note-input { flex: 1; min-width: 12rem; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 0.65rem; color: var(--text-primary); }
+.removal-notice-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--warning);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.removal-notice-form {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  background: var(--glass-bg);
+}
+.removal-notice-form h3 { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-size: 0.95rem; color: var(--text-primary); }
+.removal-notice-form p { margin: 0; color: var(--text-secondary); font-size: 0.813rem; line-height: 1.5; }
+.removal-notice-form label { color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.removal-notice-form input,
+.removal-notice-form textarea { padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 0.65rem; color: var(--text-primary); }
+.removal-notice-active { color: var(--warning) !important; font-weight: 600; }
+.btn-set-removal-notice,
+.btn-clear-removal-notice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-set-removal-notice { background: var(--warning); border: 1px solid var(--warning); color: #1a1205; }
+.btn-set-removal-notice:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-clear-removal-notice { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-secondary); }
+.btn-clear-removal-notice:hover { border-color: var(--danger); color: var(--danger); }
 

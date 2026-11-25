@@ -320,6 +320,31 @@
   border-color: rgba(74, 222, 128, 0.3);
 }
 
+.item-removal-badge {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: calc(100% - 1.5rem);
+  padding: 0.3rem 0.6rem;
+  background: rgba(11, 16, 32, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  border-radius: 0.5rem;
+  color: var(--warning);
+  font-size: 0.688rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.item-removal-badge span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .item-body {
   padding: 1.25rem;
   display: flex;

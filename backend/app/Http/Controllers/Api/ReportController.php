@@ -87,6 +87,12 @@ class ReportController extends Controller
             $report->id,
             ['item_name' => $report->item_name, 'type' => 'lost', 'status' => 'pending'],
         );
+        ActivityLogger::notifyAdmins(
+            'report.pending',
+            'Laporan kehilangan baru',
+            $request->user()->name.' melaporkan kehilangan '.$report->item_name.'.',
+            '/admin/reports',
+        );
 
         return response()->json([
             'message' => 'Report created successfully. Waiting for admin approval.',

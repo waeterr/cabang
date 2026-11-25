@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, MapPin, Calendar, Package, X } from 'lucide-react';
+import { Search, Filter, MapPin, Calendar, Package, X, Megaphone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Link, useLocation } from 'react-router-dom';
 import { getReports } from '../../api/reports';
@@ -253,6 +253,12 @@ const BrowseItems = () => {
                       <div className={`item-badge ${itemType}`}>
                         {titleWord}
                       </div>
+                      {item.removal_deadline_at && (
+                        <div className="item-removal-badge">
+                          <Megaphone size={13} />
+                          <span>Dihapus {formatDate(item.removal_deadline_at)}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="item-body">
