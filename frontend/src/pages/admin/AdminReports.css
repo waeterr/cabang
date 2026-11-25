@@ -557,3 +557,11 @@
     padding: 1.5rem;
   }
 }
+
+.admin-create-found { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.6rem 1rem; background: var(--accent-primary); border-radius: 0.65rem; color: var(--bg-primary); font-weight: 600; font-size: 0.9rem; text-decoration: none; }
+.report-actions { display: flex; gap: 0.5rem; align-items: center; }
+.btn-archive-report, .btn-restore-report { display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; padding: 0.6rem 0.75rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.65rem; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; }
+.btn-archive-report:hover, .btn-restore-report:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.archive-report-form { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+.archive-note-input { flex: 1; min-width: 12rem; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 0.65rem; color: var(--text-primary); }
+

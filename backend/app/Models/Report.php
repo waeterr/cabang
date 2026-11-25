@@ -21,12 +21,14 @@ class Report extends Model
         'photo_path',
         'status',
         'rejection_reason',
+        'archived_at',
     ];
 
     protected function casts(): array
     {
         return [
             'date' => 'date',
+            'archived_at' => 'datetime',
         ];
     }
 
@@ -51,7 +53,15 @@ class Report extends Model
      */
     public function scopeApproved($query)
     {
-        return $query->where('status', 'approved');
+        return $query->where('status', 'approved')->whereNull('archived_at');
+    }
+
+    /**
+     * Scope a query to exclude archived reports.
+     */
+    public function scopeNotArchived($query)
+    {
+        return $query->whereNull('archived_at');
     }
 
     /**

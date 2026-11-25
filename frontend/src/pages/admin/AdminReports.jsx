@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Check, X, Eye, Search, Filter } from 'lucide-react';
+import { FileText, Check, X, Eye, Archive, ArchiveRestore, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { getAdminReports, approveReport, rejectReport } from '../../api/admin';
+import { getAdminReports, approveReport, rejectReport, archiveReport, restoreReport } from '../../api/admin';
 import { getStorageUrl, formatDate } from '../../utils/helpers';
 import Navbar from '../../components/common/Navbar';
 import AmbientBackground from '../../components/common/AmbientBackground';
@@ -17,6 +18,7 @@ const AdminReports = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [filter, setFilter] = useState('pending');
+  const [archiveNote, setArchiveNote] = useState('');
 
   useEffect(() => {
     fetchReports(1);
@@ -27,7 +29,8 @@ const AdminReports = () => {
     setIsLoading(true);
     try {
       const data = await getAdminReports({
-        ...(filter === 'all' ? {} : { status: filter }),
+        ...(filter === 'all' || filter === 'archived' ? {} : { status: filter }),
+        ...(filter === 'archived' ? { archived: 'only' } : {}),
         page,
       });
       setReports(data.data || []);
@@ -73,6 +76,35 @@ const AdminReports = () => {
     }
   };
 
+  const handleArchive = async (reportId) => {
+    setIsProcessing(true);
+    try {
+      await archiveReport(reportId, archiveNote || null);
+      toast.success('Report archived');
+      setSelectedReport(null);
+      setArchiveNote('');
+      fetchReports();
+    } catch (error) {
+      toast.error('Failed to archive report');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRestore = async (reportId) => {
+    setIsProcessing(true);
+    try {
+      await restoreReport(reportId);
+      toast.success('Report restored');
+      setSelectedReport(null);
+      fetchReports();
+    } catch (error) {
+      toast.error('Failed to restore report');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const getStatusBadge = (status) => {
     const badges = {
       pending: { label: 'Pending', class: 'status-pending' },
@@ -104,6 +136,7 @@ const AdminReports = () => {
           <p className="reports-subtitle">
             Review dan kelola laporan barang hilang
           </p>
+          <Link className="admin-create-found" to="/admin/reports/found/create"><Plus size={18} /> Tambah Barang Ditemukan</Link>
         </motion.div>
 
         {/* Filter Tabs */}
@@ -113,7 +146,7 @@ const AdminReports = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          {['pending', 'approved', 'rejected', 'all'].map((status) => (
+          {['pending', 'approved', 'rejected', 'all', 'archived'].map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -193,13 +226,24 @@ const AdminReports = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setSelectedReport(report)}
-                  className="btn-view-report"
-                >
-                  <Eye size={18} />
-                  <span>Review Report</span>
-                </button>
+                <div className="report-actions">
+                  <button
+                    onClick={() => setSelectedReport(report)}
+                    className="btn-view-report"
+                  >
+                    <Eye size={18} />
+                    <span>Review Report</span>
+                  </button>
+                  <button
+                    className="btn-archive-report"
+                    disabled={isProcessing}
+                    onClick={() => (report.archived_at ? handleRestore(report.id) : handleArchive(report.id))}
+                    title={report.archived_at ? 'Pulihkan laporan' : 'Arsipkan laporan'}
+                    type="button"
+                  >
+                    {report.archived_at ? <ArchiveRestore size={18} /> : <Archive size={18} />}
+                  </button>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -269,6 +313,17 @@ const AdminReports = () => {
                 />
               </div>
             )}
+
+            <div className="archive-report-form">
+              {selectedReport.archived_at ? (
+                <button className="btn-restore-report" disabled={isProcessing} onClick={() => handleRestore(selectedReport.id)} type="button"><ArchiveRestore size={18} /> Pulihkan Laporan</button>
+              ) : (
+                <>
+                  <input className="archive-note-input" maxLength="500" onChange={(event) => setArchiveNote(event.target.value)} placeholder="Catatan pengarsipan (opsional)" value={archiveNote} />
+                  <button className="btn-archive-report" disabled={isProcessing} onClick={() => handleArchive(selectedReport.id)} type="button"><Archive size={18} /> Arsipkan Laporan</button>
+                </>
+              )}
+            </div>
 
             {selectedReport.status === 'pending' && (
               <div className="modal-actions">

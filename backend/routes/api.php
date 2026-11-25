@@ -69,6 +69,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/reports/{id}/approve', [App\Http\Controllers\Api\Admin\ReportController::class, 'approve']);
         Route::post('/reports/{id}/reject', [App\Http\Controllers\Api\Admin\ReportController::class, 'reject']);
         Route::post('/reports/{id}/resolve', [App\Http\Controllers\Api\Admin\ReportController::class, 'resolve']);
+        Route::post('/reports/{id}/archive', [App\Http\Controllers\Api\Admin\ReportController::class, 'archive']);
+        Route::post('/reports/{id}/restore', [App\Http\Controllers\Api\Admin\ReportController::class, 'restore']);
         Route::apiResource('reports', App\Http\Controllers\Api\Admin\ReportController::class)->only(['index', 'show', 'store', 'destroy']);
 
         // Claim management

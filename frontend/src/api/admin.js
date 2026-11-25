@@ -117,6 +117,22 @@ export const resolveReport = async (id) => {
 };
 
 /**
+ * Archive report (admin)
+ */
+export const archiveReport = async (id, note = null) => {
+  const response = await apiClient.post(`/admin/reports/${id}/archive`, { note });
+  return response.data;
+};
+
+/**
+ * Restore archived report (admin)
+ */
+export const restoreReport = async (id) => {
+  const response = await apiClient.post(`/admin/reports/${id}/restore`);
+  return response.data;
+};
+
+/**
  * Delete report (admin)
  */
 export const deleteAdminReport = async (id) => {

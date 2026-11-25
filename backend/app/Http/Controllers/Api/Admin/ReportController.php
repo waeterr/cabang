@@ -26,6 +26,13 @@ class ReportController extends Controller
             $query->where('type', $request->type);
         }
 
+        // Filter by archive state
+        if ($request->input('archived') === 'only') {
+            $query->whereNotNull('archived_at');
+        } elseif (! $request->boolean('include_archived')) {
+            $query->whereNull('archived_at');
+        }
+
         $reports = $query->latest()->paginate(15);
 
         return response()->json($reports);
@@ -160,6 +167,54 @@ class ReportController extends Controller
             'message' => 'Found item report created successfully',
             'report' => $report->load('user'),
         ], 201);
+    }
+
+    /**
+     * Archive the specified report. Archived reports leave the public list but
+     * stay in the database and in the staff history.
+     */
+    public function archive(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $report = Report::findOrFail($id);
+
+        $report->update([
+            'archived_at' => now(),
+        ]);
+
+        $note = $validated['note'] ?? null;
+        $description = 'Mengarsipkan laporan: '.$report->item_name;
+        $message = 'Laporan '.$report->item_name.' telah diarsipkan oleh petugas perpustakaan.';
+        if ($note) {
+            $message .= ' Catatan: '.$note;
+        }
+
+        ActivityLogger::log($request->user(), 'report.archived', $description, Report::class, $report->id, ['note' => $note]);
+        ActivityLogger::notify($report->user, 'report.archived', 'Laporan diarsipkan', $message, '/history');
+
+        return response()->json([
+            'message' => 'Report archived successfully',
+            'report' => $report->load('user'),
+        ]);
+    }
+
+    /**
+     * Restore an archived report.
+     */
+    public function restore(Request $request, string $id)
+    {
+        $report = Report::findOrFail($id);
+        $report->update(['archived_at' => null]);
+
+        ActivityLogger::log($request->user(), 'report.restored', 'Mengembalikan laporan: '.$report->item_name, Report::class, $report->id);
+
+        return response()->json([
+            'message' => 'Report restored successfully',
+            'report' => $report->load('user'),
+        ]);
     }
 
     /**
