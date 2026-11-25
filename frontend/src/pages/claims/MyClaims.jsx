@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Award, Calendar, ChevronRight, Package } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Award, Calendar, ChevronRight, Package, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getMyClaims } from '../../api/claims';
 import { formatDate, getStorageUrl, handleApiError } from '../../utils/helpers';
 import AmbientBackground from '../../components/common/AmbientBackground';
 import Navbar from '../../components/common/Navbar';
+import ClaimChat from '../../components/common/ClaimChat';
 import './MyClaims.css';
 
 const statusLabel = {
@@ -17,6 +18,7 @@ const statusLabel = {
 
 const MyClaims = () => {
   const [claims, setClaims] = useState([]);
+  const [selectedClaim, setSelectedClaim] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -53,15 +55,40 @@ const MyClaims = () => {
                 <div className="claim-copy">
                   <div className="claim-topline"><span className={`claim-status status-${claim.status}`}>{statusLabel[claim.status] || claim.status}</span><span className="claim-date"><Calendar size={14} /> {formatDate(claim.created_at)}</span></div>
                   <h2>{claim.report?.item_name || 'Barang tidak tersedia'}</h2>
-                  <p>{claim.reason}</p>
+                  <p>{claim.proof_description}</p>
                   {claim.status === 'rejected' && claim.rejection_reason && <p className="claim-rejection">Alasan: {claim.rejection_reason}</p>}
                 </div>
-                {claim.report && <Link aria-label={`Lihat ${claim.report.item_name}`} className="claim-link" to={`/items/${claim.report.id}`}><ChevronRight size={20} /></Link>}
+                <div className="claim-actions">
+                  <button className="claim-chat-trigger" onClick={() => setSelectedClaim(claim)} type="button">
+                    Diskusi
+                  </button>
+                  {claim.report && <Link aria-label={`Lihat ${claim.report.item_name}`} className="claim-link" to={`/items/${claim.report.id}`}><ChevronRight size={20} /></Link>}
+                </div>
               </motion.article>
             ))}
           </section>
         )}
       </main>
+
+      <AnimatePresence>
+        {selectedClaim && (
+          <div className="modal-overlay" onClick={() => setSelectedClaim(null)}>
+            <motion.div
+              className="modal-card"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button aria-label="Tutup" className="modal-close" onClick={() => setSelectedClaim(null)} type="button">
+                <X size={20} />
+              </button>
+              <h2 className="modal-title">{selectedClaim.report?.item_name || 'Klaim'}</h2>
+              <ClaimChat claimId={selectedClaim.id} />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

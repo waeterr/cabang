@@ -37,7 +37,6 @@ class ClaimController extends Controller
             'proof_description' => ['required', 'string'],
             'proof_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
             'contact_info' => ['required', 'string', 'max:255'],
-            'reason' => ['required', 'string'],
         ]);
 
         // Check if report exists and is a found item
@@ -77,7 +76,6 @@ class ClaimController extends Controller
             'proof_description' => $validated['proof_description'],
             'proof_path' => $validated['proof_path'] ?? null,
             'contact_info' => $validated['contact_info'],
-            'reason' => $validated['reason'],
             'status' => 'pending',
         ]);
 
@@ -122,7 +120,6 @@ class ClaimController extends Controller
             'proof_description' => ['sometimes', 'string'],
             'proof_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
             'contact_info' => ['sometimes', 'string', 'max:255'],
-            'reason' => ['sometimes', 'string'],
         ]);
 
         // Store new proof file if provided

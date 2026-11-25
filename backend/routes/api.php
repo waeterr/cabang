@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ClaimController;
+use App\Http\Controllers\Api\ClaimMessageController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Claims
         Route::apiResource('claims', ClaimController::class);
         Route::get('/claims/my/list', [ClaimController::class, 'myClaims']);
+        Route::get('/claims/{claimId}/messages', [ClaimMessageController::class, 'index']);
+        Route::post('/claims/{claimId}/messages', [ClaimMessageController::class, 'store']);
     });
 
     // Admin routes

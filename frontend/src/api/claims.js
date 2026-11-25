@@ -56,3 +56,13 @@ export const getMyClaims = async (params = {}) => {
   const response = await apiClient.get('/claims/my/list', { params });
   return response.data;
 };
+
+export const getClaimMessages = async (id) => {
+  const response = await apiClient.get(`/claims/${id}/messages`);
+  return response.data;
+};
+
+export const sendClaimMessage = async (id, message) => {
+  const response = await apiClient.post(`/claims/${id}/messages`, { message });
+  return response.data;
+};

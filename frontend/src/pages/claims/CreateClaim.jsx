@@ -18,7 +18,6 @@ const CreateClaim = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [proofFile, setProofFile] = useState(null);
   const [formData, setFormData] = useState({
-    reason: '',
     proof_description: '',
     contact_info: '',
   });
@@ -65,7 +64,6 @@ const CreateClaim = () => {
     try {
       const payload = new FormData();
       payload.append('report_id', id);
-      payload.append('reason', formData.reason);
       payload.append('proof_description', formData.proof_description);
       payload.append('contact_info', formData.contact_info);
       if (proofFile) {
@@ -106,10 +104,6 @@ const CreateClaim = () => {
             </div>
 
             <div className="form-grid">
-              <div className="form-group full-width">
-                <label className="form-label" htmlFor="reason"><FileText size={18} /> Alasan Klaim *</label>
-                <textarea className="form-textarea" id="reason" name="reason" value={formData.reason} onChange={handleChange} placeholder="Jelaskan kenapa barang ini milik Anda, termasuk ciri khusus yang hanya Anda ketahui." rows={4} required />
-              </div>
               <div className="form-group full-width">
                 <label className="form-label" htmlFor="proof_description"><FileText size={18} /> Detail Bukti *</label>
                 <textarea className="form-textarea" id="proof_description" name="proof_description" value={formData.proof_description} onChange={handleChange} placeholder="Contoh: warna, isi tas, tanda khusus, atau bukti kepemilikan." rows={4} required />

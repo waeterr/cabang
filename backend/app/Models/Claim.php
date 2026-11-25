@@ -15,7 +15,6 @@ class Claim extends Model
         'proof_description',
         'proof_path',
         'contact_info',
-        'reason',
         'status',
         'rejection_reason',
     ];
@@ -34,6 +33,14 @@ class Claim extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get messages for this claim.
+     */
+    public function messages()
+    {
+        return $this->hasMany(ClaimMessage::class);
     }
 
     /**
