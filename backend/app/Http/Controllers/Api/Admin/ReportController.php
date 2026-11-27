@@ -285,11 +285,19 @@ class ReportController extends Controller
     }
 
     /**
-     * Remove the specified report.
+     * Remove the specified report from the database.
+     * Only archived reports may be permanently deleted.
      */
     public function destroy(string $id)
     {
         $report = Report::findOrFail($id);
+
+        if (! $report->archived_at) {
+            return response()->json([
+                'message' => 'Hanya laporan yang sudah diarsipkan yang dapat dihapus permanen',
+            ], 422);
+        }
+
         $report->delete();
 
         return response()->json([
