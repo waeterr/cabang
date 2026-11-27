@@ -609,3 +609,14 @@
 .btn-clear-removal-notice { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-secondary); }
 .btn-clear-removal-notice:hover { border-color: var(--danger); color: var(--danger); }
 
+.delete-details { margin-top: 1.5rem; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 0.75rem; background: rgba(239, 68, 68, 0.08); }
+.delete-summary { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.75rem 1rem; color: var(--danger); font-weight: 600; cursor: pointer; list-style: none; }
+.delete-summary::-webkit-details-marker { display: none; }
+.delete-form { display: grid; gap: 0.6rem; padding: 0 1rem 1rem; }
+.delete-warning { margin: 0; color: var(--text-secondary); font-size: 0.813rem; line-height: 1.5; }
+.delete-form label { color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; }
+.delete-confirm-input { padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 0.65rem; color: var(--text-primary); font-family: monospace; }
+.btn-delete { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.65rem 1rem; background: var(--danger); border: 1px solid var(--danger); border-radius: 0.65rem; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.btn-delete:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-delete:hover:not(:disabled) { background: #dc2626; border-color: #dc2626; }
+

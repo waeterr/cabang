@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Check, X, Eye, Archive, ArchiveRestore, Plus, Megaphone, BellOff } from 'lucide-react';
+import { FileText, Check, X, Eye, Archive, ArchiveRestore, Plus, Megaphone, BellOff, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { getAdminReports, approveReport, rejectReport, archiveReport, restoreReport, setRemovalNotice, clearRemovalNotice } from '../../api/admin';
+import { getAdminReports, approveReport, rejectReport, archiveReport, restoreReport, setRemovalNotice, clearRemovalNotice, deleteAdminReport } from '../../api/admin';
 import { getStorageUrl, formatDate } from '../../utils/helpers';
 import Navbar from '../../components/common/Navbar';
 import AmbientBackground from '../../components/common/AmbientBackground';
@@ -21,6 +21,7 @@ const AdminReports = () => {
   const [archiveNote, setArchiveNote] = useState('');
   const [removalDeadline, setRemovalDeadline] = useState('');
   const [removalNote, setRemovalNote] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState('');
 
   useEffect(() => {
     fetchReports(1);
@@ -38,7 +39,7 @@ const AdminReports = () => {
       setReports(data.data || []);
       setMeta(data);
     } catch (error) {
-      toast.error('Failed to load reports');
+      toast.error('Gagal memuat laporan');
     } finally {
       setIsLoading(false);
     }
@@ -48,11 +49,11 @@ const AdminReports = () => {
     setIsProcessing(true);
     try {
       await approveReport(reportId);
-      toast.success('Report approved successfully');
+      toast.success('Laporan disetujui');
       setSelectedReport(null);
       fetchReports();
     } catch (error) {
-      toast.error('Failed to approve report');
+      toast.error('Gagal menyetujui laporan');
     } finally {
       setIsProcessing(false);
     }
@@ -60,19 +61,19 @@ const AdminReports = () => {
 
   const handleReject = async (reportId) => {
     if (!rejectionReason.trim()) {
-      toast.error('Rejection reason is required');
+      toast.error('Alasan penolakan wajib diisi');
       return;
     }
 
     setIsProcessing(true);
     try {
       await rejectReport(reportId, rejectionReason);
-      toast.success('Report rejected');
+      toast.success('Laporan ditolak');
       setSelectedReport(null);
       setRejectionReason('');
       fetchReports();
     } catch (error) {
-      toast.error('Failed to reject report');
+      toast.error('Gagal menolak laporan');
     } finally {
       setIsProcessing(false);
     }
@@ -82,12 +83,12 @@ const AdminReports = () => {
     setIsProcessing(true);
     try {
       await archiveReport(reportId, archiveNote || null);
-      toast.success('Report archived');
+      toast.success('Laporan diarsipkan');
       setSelectedReport(null);
       setArchiveNote('');
       fetchReports();
     } catch (error) {
-      toast.error('Failed to archive report');
+      toast.error('Gagal mengarsipkan laporan');
     } finally {
       setIsProcessing(false);
     }
@@ -97,11 +98,11 @@ const AdminReports = () => {
     setIsProcessing(true);
     try {
       await restoreReport(reportId);
-      toast.success('Report restored');
+      toast.success('Laporan dipulihkan');
       setSelectedReport(null);
       fetchReports();
     } catch (error) {
-      toast.error('Failed to restore report');
+      toast.error('Gagal memulihkan laporan');
     } finally {
       setIsProcessing(false);
     }
@@ -141,12 +142,32 @@ const AdminReports = () => {
     }
   };
 
+  const handleDelete = async (reportId) => {
+    if (deleteConfirm !== 'HAPUS') {
+      toast.error('Ketik HAPUS untuk konfirmasi');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      await deleteAdminReport(reportId);
+      toast.success('Laporan dihapus permanen');
+      setSelectedReport(null);
+      setDeleteConfirm('');
+      fetchReports();
+    } catch (error) {
+      toast.error('Gagal menghapus laporan');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const getStatusBadge = (status) => {
     const badges = {
-      pending: { label: 'Pending', class: 'status-pending' },
-      approved: { label: 'Approved', class: 'status-approved' },
-      rejected: { label: 'Rejected', class: 'status-rejected' },
-      resolved: { label: 'Resolved', class: 'status-resolved' },
+      pending: { label: 'Menunggu', class: 'status-pending' },
+      approved: { label: 'Disetujui', class: 'status-approved' },
+      rejected: { label: 'Ditolak', class: 'status-rejected' },
+      resolved: { label: 'Selesai', class: 'status-resolved' },
     };
     return badges[status] || badges.pending;
   };
@@ -167,10 +188,10 @@ const AdminReports = () => {
             <FileText size={32} />
           </div>
           <h1 className="reports-title">
-            <span className="text-gradient">Moderate</span> Reports
+            <span className="text-gradient">Moderasi</span> Laporan
           </h1>
           <p className="reports-subtitle">
-            Review dan kelola laporan barang hilang
+            Tinjau dan kelola laporan barang hilang serta temuan
           </p>
           <Link className="admin-create-found" to="/admin/reports/found/create"><Plus size={18} /> Tambah Barang Ditemukan</Link>
         </motion.div>
@@ -207,7 +228,7 @@ const AdminReports = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <FileText size={64} />
-            <h3 className="empty-title">No Reports Found</h3>
+            <h3 className="empty-title">Belum Ada Laporan</h3>
             <p className="empty-description">
               Tidak ada laporan dengan status {filter}
             </p>
@@ -225,7 +246,7 @@ const AdminReports = () => {
               >
                 <div className="report-header">
                   <div className={`report-type ${report.type}`}>
-                    {report.type === 'lost' ? 'Lost' : 'Found'}
+                    {report.type === 'lost' ? 'Hilang' : 'Temuan'}
                   </div>
                   <div className={`report-status ${getStatusBadge(report.status).class}`}>
                     {getStatusBadge(report.status).label}
@@ -249,15 +270,15 @@ const AdminReports = () => {
 
                   <div className="report-meta">
                     <div className="report-meta-item">
-                      <span className="meta-label">Location:</span>
+                      <span className="meta-label">Lokasi:</span>
                       <span>{report.location}</span>
                     </div>
                     <div className="report-meta-item">
-                      <span className="meta-label">Date:</span>
+                      <span className="meta-label">Tanggal:</span>
                       <span>{formatDate(report.date)}</span>
                     </div>
                     <div className="report-meta-item">
-                      <span className="meta-label">Reported by:</span>
+                      <span className="meta-label">Pelapor:</span>
                       <span>{report.user?.name}</span>
                     </div>
                   </div>
@@ -269,7 +290,7 @@ const AdminReports = () => {
                     className="btn-view-report"
                   >
                     <Eye size={18} />
-                    <span>Review Report</span>
+                    <span>Tinjau Laporan</span>
                   </button>
                   <button
                     className="btn-archive-report"
@@ -306,39 +327,39 @@ const AdminReports = () => {
               <X size={20} />
             </button>
 
-            <h2 className="modal-title">Review Report</h2>
+            <h2 className="modal-title">Tinjau Laporan</h2>
 
             <div className="modal-report-info">
               <div className="info-row">
-                <span className="info-label">Item:</span>
+                <span className="info-label">Barang:</span>
                 <span className="info-value">{selectedReport.item_name}</span>
               </div>
               <div className="info-row">
-                <span className="info-label">Category:</span>
+                <span className="info-label">Kategori:</span>
                 <span className="info-value">{selectedReport.category}</span>
               </div>
               <div className="info-row">
-                <span className="info-label">Type:</span>
+                <span className="info-label">Jenis:</span>
                 <span className={`report-type ${selectedReport.type}`}>
-                  {selectedReport.type === 'lost' ? 'Lost' : 'Found'}
+                  {selectedReport.type === 'lost' ? 'Hilang' : 'Temuan'}
                 </span>
               </div>
               <div className="info-row">
-                <span className="info-label">Location:</span>
+                <span className="info-label">Lokasi:</span>
                 <span className="info-value">{selectedReport.location}</span>
               </div>
               <div className="info-row">
-                <span className="info-label">Date:</span>
+                <span className="info-label">Tanggal:</span>
                 <span className="info-value">{formatDate(selectedReport.date)}</span>
               </div>
               <div className="info-row">
-                <span className="info-label">Reported by:</span>
+                <span className="info-label">Pelapor:</span>
                 <span className="info-value">{selectedReport.user?.name}</span>
               </div>
             </div>
 
             <div className="modal-description">
-              <h3>Description:</h3>
+              <h3>Deskripsi:</h3>
               <p>{selectedReport.description}</p>
             </div>
 
@@ -383,6 +404,18 @@ const AdminReports = () => {
               </section>
             )}
 
+            {selectedReport.archived_at && (
+              <details className="delete-details">
+                <summary className="delete-summary"><Trash2 size={16} /> Hapus Permanen</summary>
+                <div className="delete-form">
+                  <p className="delete-warning">Tindakan ini tidak dapat dibatalkan. Gunakan hanya untuk laporan yang salah atau duplikat.</p>
+                  <label htmlFor="delete-confirm">Ketik <strong>HAPUS</strong> untuk konfirmasi</label>
+                  <input className="delete-confirm-input" id="delete-confirm" onChange={(event) => setDeleteConfirm(event.target.value)} placeholder="HAPUS" type="text" value={deleteConfirm} />
+                  <button className="btn-delete" disabled={isProcessing || deleteConfirm !== 'HAPUS'} onClick={() => handleDelete(selectedReport.id)} type="button"><Trash2 size={18} /> Hapus Permanen</button>
+                </div>
+              </details>
+            )}
+
             {selectedReport.status === 'pending' && (
               <div className="modal-actions">
                 <button
@@ -391,17 +424,17 @@ const AdminReports = () => {
                   className="btn-approve"
                 >
                   <Check size={18} />
-                  <span>{isProcessing ? 'Processing...' : 'Approve'}</span>
+                  <span>{isProcessing ? 'Memproses...' : 'Setujui'}</span>
                 </button>
 
                 <details className="reject-details">
                   <summary>
                     <X size={16} />
-                    <span>Reject Report</span>
+                    <span>Tolak Laporan</span>
                   </summary>
                   <div className="reject-form">
                     <textarea
-                      placeholder="Reason for rejection (required)"
+                      placeholder="Alasan penolakan (wajib)"
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                       rows={3}
@@ -412,7 +445,7 @@ const AdminReports = () => {
                       disabled={isProcessing || !rejectionReason.trim()}
                       className="btn-reject"
                     >
-                      Reject with Reason
+                      Tolak dengan Alasan
                     </button>
                   </div>
                 </details>
