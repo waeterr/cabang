@@ -40,8 +40,8 @@ const Home = () => {
   }, []);
 
   const stats = [
-    { label: 'Items Found', value: statsData.found, icon: Package },
-    { label: 'Active Reports', value: statsData.active, icon: TrendingUp },
+    { label: 'Barang Ditemukan', value: statsData.found, icon: Package },
+    { label: 'Laporan Aktif', value: statsData.active, icon: TrendingUp },
   ];
 
   return (
@@ -64,9 +64,9 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Lost something?
+              Kehilangan sesuatu?
               <br />
-              <span className="text-gradient">Let's find it.</span>
+              <span className="text-gradient">Mari kita temukan.</span>
             </motion.h1>
 
             <motion.p
@@ -222,9 +222,9 @@ const Home = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="section-title">How It Works</h2>
+            <h2 className="section-title">Cara Kerja</h2>
             <p className="section-description">
-              Simple steps to report or find your items
+              Langkah mudah untuk melaporkan atau menemukan barang Anda
             </p>
           </motion.div>
 
@@ -232,18 +232,18 @@ const Home = () => {
             {[
               {
                 step: '01',
-                title: 'Report',
-                description: 'Lost something? Create a report with item details and location.',
+                title: 'Laporkan',
+                description: 'Kehilangan sesuatu? Buat laporan dengan detail barang dan lokasi.',
               },
               {
                 step: '02',
-                title: 'Browse',
-                description: 'Found something? Search through reported items to help return it.',
+                title: 'Cari',
+                description: 'Menemukan sesuatu? Lihat daftar barang hilang untuk membantu mengembalikannya.',
               },
               {
                 step: '03',
-                title: 'Connect',
-                description: 'Match found! Coordinate with the owner for safe return.',
+                title: 'Terhubung',
+                description: 'Cocok! Koordinasikan dengan pemilik untuk pengembalian yang aman.',
               },
             ].map((step, index) => (
               <motion.div

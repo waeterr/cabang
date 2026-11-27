@@ -29,23 +29,23 @@ const AdminDashboard = () => {
           pendingClaims: statsData.claims?.pending || 0,
         });
       })
-      .catch(() => toast.error('Failed to load dashboard data'))
+      .catch(() => toast.error('Gagal memuat data dasbor'))
       .finally(() => setIsLoading(false));
   }, []);
 
   const statCards = [
-    { label: 'Pending KTM', value: stats.pendingKtm, icon: UserCheck, color: 'blue' },
-    { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'cyan' },
-    { label: 'Total Reports', value: stats.totalReports, icon: FileText, color: 'yellow' },
-    { label: 'Pending Claims', value: stats.pendingClaims, icon: Award, color: 'green' },
+    { label: 'KTM Menunggu', value: stats.pendingKtm, icon: UserCheck, color: 'blue' },
+    { label: 'Total Pengguna', value: stats.totalUsers, icon: Users, color: 'cyan' },
+    { label: 'Total Laporan', value: stats.totalReports, icon: FileText, color: 'yellow' },
+    { label: 'Klaim Menunggu', value: stats.pendingClaims, icon: Award, color: 'green' },
   ];
 
   const actions = [
-    { icon: UserCheck, label: 'Verify KTM', description: 'Verifikasi mahasiswa baru', to: '/admin/verifications', color: 'blue' },
-    { icon: FileText, label: 'Moderate Reports', description: 'Kelola laporan masuk', to: '/admin/reports', color: 'cyan' },
-    { icon: Award, label: 'Verify Claims', description: 'Verifikasi klaim barang', to: '/admin/claims', color: 'violet' },
-    { icon: Users, label: 'Manage Users', description: 'Kelola mahasiswa', to: '/admin/users', color: 'green' },
-    { icon: Tag, label: 'Manage Categories', description: 'Atur kategori barang', to: '/admin/categories', color: 'blue' },
+    { icon: UserCheck, label: 'Verifikasi KTM', description: 'Verifikasi mahasiswa baru', to: '/admin/verifications', color: 'blue' },
+    { icon: FileText, label: 'Moderasi Laporan', description: 'Kelola laporan masuk', to: '/admin/reports', color: 'cyan' },
+    { icon: Award, label: 'Verifikasi Klaim', description: 'Verifikasi klaim barang', to: '/admin/claims', color: 'violet' },
+    { icon: Users, label: 'Kelola Pengguna', description: 'Kelola mahasiswa', to: '/admin/users', color: 'green' },
+    { icon: Tag, label: 'Kelola Kategori', description: 'Atur kategori barang', to: '/admin/categories', color: 'blue' },
   ];
 
   return (
@@ -55,7 +55,7 @@ const AdminDashboard = () => {
       <div className="dashboard-container">
         <motion.div className="dashboard-header" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div>
-            <h1 className="dashboard-title">Admin <span className="text-gradient">Dashboard</span></h1>
+            <h1 className="dashboard-title">Dasbor <span className="text-gradient">Admin</span></h1>
             <p className="dashboard-subtitle">Kelola verifikasi dan laporan CaBang, {user?.name}</p>
           </div>
           <Shield className="dashboard-admin-mark" size={34} />
@@ -71,7 +71,7 @@ const AdminDashboard = () => {
         </div>
 
         <motion.section className="section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h2 className="section-title">Quick Actions</h2>
+          <h2 className="section-title">Aksi Cepat</h2>
           <div className="actions-grid">
             {actions.map((action, index) => (
               <motion.div key={action.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + index * 0.08 }} whileHover={{ y: -4 }}>

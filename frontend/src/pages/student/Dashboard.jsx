@@ -41,7 +41,7 @@ const Dashboard = () => {
 
         setRecentReports(reports.slice(0, 3));
       } catch (error) {
-        toast.error('Failed to load dashboard data');
+        toast.error('Gagal memuat data dasbor');
       } finally {
         setIsLoading(false);
       }
@@ -53,29 +53,29 @@ const Dashboard = () => {
   const quickActions = [
     {
       icon: Plus,
-      label: 'Report Lost Item',
-      description: 'Laporkan barang hilang',
+      label: 'Laporkan Barang Hilang',
+      description: 'Buat laporan barang yang hilang',
       to: '/reports/create',
       color: 'blue',
     },
     {
       icon: Search,
-      label: 'Browse Items',
-      description: 'Cari barang hilang',
+      label: 'Cari Barang',
+      description: 'Lihat daftar barang hilang dan temuan',
       to: '/items/lost',
       color: 'cyan',
     },
     {
       icon: FileText,
-      label: 'My Reports',
-      description: 'Laporan saya',
+      label: 'Laporan Saya',
+      description: 'Riwayat laporan Anda',
       to: '/reports/my',
       color: 'violet',
     },
     {
       icon: Award,
-      label: 'My Claims',
-      description: 'Klaim saya',
+      label: 'Klaim Saya',
+      description: 'Status klaim Anda',
       to: '/claims/my',
       color: 'green',
     },
@@ -83,25 +83,25 @@ const Dashboard = () => {
 
   const statCards = [
     {
-      label: 'Total Reports',
+      label: 'Total Laporan',
       value: stats.myReports,
       icon: FileText,
       color: 'blue',
     },
     {
-      label: 'Total Claims',
+      label: 'Total Klaim',
       value: stats.myClaims,
       icon: Award,
       color: 'cyan',
     },
     {
-      label: 'Pending',
+      label: 'Menunggu',
       value: stats.pendingReports,
       icon: Clock,
       color: 'yellow',
     },
     {
-      label: 'Resolved',
+      label: 'Selesai',
       value: stats.resolvedReports,
       icon: TrendingUp,
       color: 'green',
@@ -122,7 +122,7 @@ const Dashboard = () => {
         >
           <div>
             <h1 className="dashboard-title">
-              Welcome back, <span className="text-gradient">{user?.name}</span>
+              Selamat datang kembali, <span className="text-gradient">{user?.name}</span>
             </h1>
             <p className="dashboard-subtitle">
               Kelola laporan dan klaim barang hilang Anda
@@ -161,7 +161,7 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <h2 className="section-title">Quick Actions</h2>
+          <h2 className="section-title">Aksi Cepat</h2>
           <div className="actions-grid">
             {quickActions.map((action, index) => (
               <motion.div
@@ -193,23 +193,23 @@ const Dashboard = () => {
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="section-header">
-            <h2 className="section-title">Recent Reports</h2>
+            <h2 className="section-title">Laporan Terbaru</h2>
             <Link to="/reports/my" className="section-link">
-              View All
+              Lihat Semua
             </Link>
           </div>
 
           {isLoading ? (
-            <div className="loading-state">Loading...</div>
+            <div className="loading-state">Memuat...</div>
           ) : recentReports.length === 0 ? (
             <div className="empty-state">
               <Package size={48} />
-              <p className="empty-title">No reports yet</p>
+              <p className="empty-title">Belum ada laporan</p>
               <p className="empty-description">
                 Mulai laporkan barang hilang Anda
               </p>
               <Link to="/reports/create" className="empty-action">
-                Create Report
+                Buat Laporan
               </Link>
             </div>
           ) : (
@@ -237,7 +237,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <Link to={`/reports/${report.id}`} className="report-link">
-                    View
+                    Lihat
                   </Link>
                 </motion.div>
               ))}

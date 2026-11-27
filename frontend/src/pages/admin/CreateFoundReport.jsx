@@ -32,7 +32,7 @@ const CreateFoundReport = () => {
       const data = await getCategories();
       setCategories(Array.isArray(data) ? data : (data.data || []));
     } catch (error) {
-      toast.error('Failed to load categories');
+      toast.error('Gagal memuat kategori');
       console.error('Categories error:', error);
     }
   };
@@ -46,7 +46,7 @@ const CreateFoundReport = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        toast.error('Image size must be less than 2MB');
+        toast.error('Ukuran gambar maksimal 2MB');
         return;
       }
 
@@ -64,7 +64,7 @@ const CreateFoundReport = () => {
     e.preventDefault();
 
     if (!formData.item_name || !formData.description || !formData.category_id || !formData.location) {
-      toast.error('Please fill in all required fields');
+      toast.error('Mohon isi semua kolom wajib');
       return;
     }
 
@@ -87,10 +87,10 @@ const CreateFoundReport = () => {
 
     try {
       await createFoundReport(data);
-      toast.success('Found item registered successfully');
+      toast.success('Barang temuan berhasil didaftarkan');
       navigate('/admin/reports');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create report');
+      toast.error(error.response?.data?.message || 'Gagal mendaftarkan barang temuan');
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +112,7 @@ const CreateFoundReport = () => {
             <Plus size={32} />
           </div>
           <h1 className="create-report-title">
-            <span className="text-gradient">Register</span> Found Item
+            <span className="text-gradient">Daftarkan</span> Barang Temuan
           </h1>
           <p className="create-report-subtitle">
             Daftarkan barang temuan yang diserahkan ke perpustakaan
@@ -130,7 +130,7 @@ const CreateFoundReport = () => {
             <div className="form-group full-width">
               <label htmlFor="item_name" className="form-label">
                 <FileText size={18} />
-                <span>Item Name *</span>
+                <span>Nama Barang *</span>
               </label>
               <input
                 type="text"
@@ -138,7 +138,7 @@ const CreateFoundReport = () => {
                 name="item_name"
                 value={formData.item_name}
                 onChange={handleChange}
-                placeholder="e.g., Blue Backpack"
+                placeholder="Contoh: Tas Ransel Biru"
                 className="form-input"
                 required
               />
@@ -147,7 +147,7 @@ const CreateFoundReport = () => {
             <div className="form-group">
               <label htmlFor="category_id" className="form-label">
                 <FileText size={18} />
-                <span>Category *</span>
+                <span>Kategori *</span>
               </label>
               <select
                 id="category_id"
@@ -157,7 +157,7 @@ const CreateFoundReport = () => {
                 className="form-select"
                 required
               >
-                <option value="">Select Category</option>
+                <option value="">Pilih Kategori</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -169,7 +169,7 @@ const CreateFoundReport = () => {
             <div className="form-group">
               <label htmlFor="location" className="form-label">
                 <MapPin size={18} />
-                <span>Location Found *</span>
+                <span>Lokasi Ditemukan *</span>
               </label>
               <input
                 type="text"
@@ -177,7 +177,7 @@ const CreateFoundReport = () => {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="e.g., Ruang Baca Lt. 3"
+                placeholder="Contoh: Ruang Baca Lt. 3"
                 className="form-input"
                 required
               />
@@ -186,7 +186,7 @@ const CreateFoundReport = () => {
             <div className="form-group">
               <label htmlFor="date_found" className="form-label">
                 <Calendar size={18} />
-                <span>Date Found</span>
+                <span>Tanggal Ditemukan</span>
               </label>
               <input
                 type="date"
@@ -201,14 +201,14 @@ const CreateFoundReport = () => {
             <div className="form-group full-width">
               <label htmlFor="description" className="form-label">
                 <FileText size={18} />
-                <span>Description *</span>
+                <span>Deskripsi *</span>
               </label>
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe the item in detail..."
+                placeholder="Jelaskan barang secara detail..."
                 className="form-textarea"
                 rows={4}
                 required
@@ -218,7 +218,7 @@ const CreateFoundReport = () => {
             <div className="form-group full-width">
               <label htmlFor="image" className="form-label">
                 <ImageIcon size={18} />
-                <span>Item Photo</span>
+                <span>Foto Barang</span>
               </label>
               <div className="upload-area">
                 <input
@@ -231,12 +231,12 @@ const CreateFoundReport = () => {
                 />
                 <label htmlFor="image" className="upload-label">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="upload-preview" />
+                    <img src={imagePreview} alt="Pratinjau" className="upload-preview" />
                   ) : (
                     <div className="upload-placeholder">
                       <Upload size={32} />
-                      <span className="upload-text">Click to upload photo</span>
-                      <span className="upload-hint">PNG, JPG up to 2MB</span>
+                      <span className="upload-text">Klik untuk unggah foto</span>
+                      <span className="upload-hint">PNG, JPG maksimal 2MB</span>
                     </div>
                   )}
                 </label>
@@ -251,14 +251,14 @@ const CreateFoundReport = () => {
               className="btn-cancel"
               disabled={isLoading}
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
               className="btn-submit"
               disabled={isLoading}
             >
-              {isLoading ? 'Registering...' : 'Register Found Item'}
+              {isLoading ? 'Mendaftarkan...' : 'Daftarkan Barang Temuan'}
             </button>
           </div>
         </motion.form>
