@@ -7,11 +7,27 @@ import { getPublicStats, getReports } from '../api/reports';
 import { getStorageUrl, handleApiError, getRelativeTime } from '../utils/helpers';
 import Navbar from '../components/common/Navbar';
 import AmbientBackground from '../components/common/AmbientBackground';
+import useAuthStore from '../store/authStore';
+import gedungImage from '../assets/gedung.jpg';
+import gedungInteriorImage from '../assets/geddung2.jpg';
 import './Home.css';
 
 const Home = () => {
   const [statsData, setStatsData] = useState({ found: 0, active: 0 });
   const [recentItems, setRecentItems] = useState([]);
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const heroSlides = [gedungImage, gedungInteriorImage];
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [heroSlides.length]);
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -51,6 +67,17 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="hero-section">
+        <div className="hero-slideshow" aria-hidden="true">
+          {heroSlides.map((slide, index) => (
+            <div
+              key={slide}
+              className={`hero-slide ${index === activeSlide ? 'active' : ''}`}
+              style={{ backgroundImage: `url(${slide})` }}
+            />
+          ))}
+          <div className="hero-slide-overlay" />
+        </div>
+
         <div className="container">
           <motion.div
             className="hero-content"
@@ -90,10 +117,10 @@ const Home = () => {
                 <Search className="search-icon" size={20} />
                 <input
                   type="text"
-                  placeholder="Search for lost items..."
+                  placeholder="Cari barang hilang..."
                   className="search-input"
                 />
-                <button className="search-button">Search</button>
+                <button className="search-button">Cari</button>
               </div>
             </motion.div>
 
@@ -105,11 +132,14 @@ const Home = () => {
             >
               <Link to="/items/lost" className="hero-btn hero-btn-secondary">
                 <Search size={18} />
-                Browse Items
+                Lihat Barang
               </Link>
-              <Link to="/reports/create" className="hero-btn hero-btn-primary">
+              <Link
+                to={isAdmin ? '/admin/reports/found/create' : '/reports/create'}
+                className="hero-btn hero-btn-primary"
+              >
                 <Plus size={18} />
-                Report an Item
+                {isAdmin ? 'Tambah Barang Temuan' : 'Laporkan Barang'}
               </Link>
             </motion.div>
           </motion.div>
@@ -151,9 +181,9 @@ const Home = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="section-title">Recent Activity</h2>
+            <h2 className="section-title">Aktivitas Terbaru</h2>
             <p className="section-description">
-              Latest lost and found items reported by the community
+              Laporan barang hilang dan temuan terbaru dari komunitas
             </p>
           </motion.div>
 
@@ -178,7 +208,7 @@ const Home = () => {
                       <div className="item-placeholder"><Package size={48} /></div>
                     )}
                     <div className={`item-badge ${item.type}`}>
-                      {item.type === 'lost' ? 'Lost' : 'Found'}
+                      {item.type === 'lost' ? 'Hilang' : 'Temuan'}
                     </div>
                   </div>
                   <div className="item-content">
@@ -191,7 +221,7 @@ const Home = () => {
                     <div className="item-date">{getRelativeTime(item.created_at)}</div>
                   </div>
                   <Link to={`/items/${item.id}`} className="item-link">
-                    View Details
+                    Lihat Detail
                   </Link>
                 </motion.div>
               ))
@@ -206,7 +236,7 @@ const Home = () => {
             transition={{ duration: 0.6 }}
           >
             <Link to="/items/lost" className="cta-button">
-              View All Items
+              Lihat Semua Barang
             </Link>
           </motion.div>
         </div>
@@ -270,20 +300,20 @@ const Home = () => {
             <div className="footer-brand">
               <div className="footer-logo">CaBang</div>
               <p className="footer-tagline">
-                CaBang - Lost & Found System
+                CaBang - Sistem Barang Hilang &amp; Temuan
                 <br />
                 Perpustakaan UNDIP
               </p>
             </div>
             <div className="footer-links">
-              <Link to="/" className="footer-link">Home</Link>
-              <Link to="/items/lost" className="footer-link">Lost Items</Link>
-              <Link to="/items/found" className="footer-link">Found Items</Link>
-              <Link to="/login" className="footer-link">Login</Link>
+              <Link to="/" className="footer-link">Beranda</Link>
+              <Link to="/items/lost" className="footer-link">Barang Hilang</Link>
+              <Link to="/items/found" className="footer-link">Barang Temuan</Link>
+              <Link to="/login" className="footer-link">Masuk</Link>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2026 CaBang. Perpustakaan UNDIP. All rights reserved.</p>
+            <p>&copy; 2026 CaBang. Perpustakaan UNDIP. Hak cipta dilindungi.</p>
           </div>
         </div>
       </footer>

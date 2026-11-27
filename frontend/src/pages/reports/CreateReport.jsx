@@ -5,12 +5,15 @@ import { Plus, Upload, MapPin, Calendar, FileText, Image as ImageIcon } from 'lu
 import toast from 'react-hot-toast';
 import { createReport } from '../../api/reports';
 import { getCategories } from '../../api/categories';
+import useAuthStore from '../../store/authStore';
 import Navbar from '../../components/common/Navbar';
 import AmbientBackground from '../../components/common/AmbientBackground';
 import './CreateReport.css';
 
 const CreateReport = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
@@ -22,6 +25,12 @@ const CreateReport = () => {
     date_lost: '',
     image: null,
   });
+
+  useEffect(() => {
+    if (isAdmin) {
+      navigate('/admin/reports/found/create', { replace: true });
+    }
+  }, [isAdmin, navigate]);
 
   useEffect(() => {
     fetchCategories();
@@ -95,6 +104,10 @@ const CreateReport = () => {
       setIsLoading(false);
     }
   };
+
+  if (isAdmin) {
+    return null;
+  }
 
   return (
     <div className="create-report-page">

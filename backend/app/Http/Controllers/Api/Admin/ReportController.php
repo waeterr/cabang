@@ -132,6 +132,12 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+        if (! $request->user()->isAdmin()) {
+            return response()->json([
+                'message' => 'Hanya admin yang dapat mendaftarkan barang temuan.',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'item_name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:255'],

@@ -56,6 +56,14 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+        // Students may only create lost reports. Found items are registered by
+        // library staff through the admin endpoint.
+        if ($request->user()->isAdmin()) {
+            return response()->json([
+                'message' => 'Admin tidak dapat membuat laporan kehilangan. Gunakan formulir barang temuan.',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'item_name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:255'],

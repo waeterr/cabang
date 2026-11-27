@@ -63,9 +63,9 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   const publicLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/items/lost', label: 'Lost' },
-    { path: '/items/found', label: 'Found' },
+    { path: '/', label: 'Beranda' },
+    { path: '/items/lost', label: 'Hilang' },
+    { path: '/items/found', label: 'Temuan' },
   ];
 
   const isAdmin = user?.role === 'admin';
@@ -129,7 +129,7 @@ const Navbar = () => {
                   <span>Dashboard</span>
                 </Link>
                 <Link
-                  to={isAdmin ? '/admin/dashboard' : '/reports/create'}
+                  to={reportAction.to}
                   className="nav-action-link"
                   title={reportAction.label}
                 >
@@ -141,7 +141,7 @@ const Navbar = () => {
                     <span className="nav-inbox-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
                   )}
                 </Link>
-                <button onClick={handleLogout} className="nav-logout" title="Logout">
+                <button onClick={handleLogout} className="nav-logout" title="Keluar">
                   <LogOut size={18} />
                 </button>
               </>
@@ -202,7 +202,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                   <Link
-                    to={isAdmin ? '/admin/reports/found/create' : '/reports/create'}
+                    to={reportAction.to}
                     className="mobile-menu-link"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -229,7 +229,7 @@ const Navbar = () => {
                     }}
                     className="mobile-menu-link"
                   >
-                    Logout
+                    Keluar
                   </button>
                 </>
               ) : (

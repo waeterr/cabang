@@ -15,7 +15,7 @@ const BrowseItems = () => {
   const location = useLocation();
   const itemType = location.pathname.endsWith('/found') ? 'found' : 'lost';
   const isLost = itemType === 'lost';
-  const titleWord = isLost ? 'Lost' : 'Found';
+  const titleWord = isLost ? 'Barang Hilang' : 'Barang Temuan';
 
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -59,7 +59,7 @@ const BrowseItems = () => {
       setItems(response.data || []);
       setMeta(response);
     } catch (error) {
-      toast.error('Failed to load items');
+      toast.error('Gagal memuat barang');
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +102,7 @@ const BrowseItems = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="browse-title">
-            <span className="text-gradient">{titleWord}</span> Items
+            <span className="text-gradient">{titleWord}</span>
           </h1>
           <p className="browse-subtitle">
             {isLost ? 'Cari barang hilang yang dilaporkan' : 'Lihat barang temuan yang terdaftar'} di Perpustakaan UNDIP
@@ -131,14 +131,14 @@ const BrowseItems = () => {
                   type="button"
                   onClick={() => handleFilterChange('search', '')}
                   className="search-clear"
-                  aria-label="Clear search"
+                  aria-label="Hapus pencarian"
                 >
                   <X size={16} />
                 </button>
               )}
             </div>
             <button type="submit" className="search-button">
-              Search
+              Cari
             </button>
             <button
               type="button"
@@ -146,7 +146,7 @@ const BrowseItems = () => {
               className={`filter-toggle ${showFilters ? 'active' : ''}`}
             >
               <Filter size={18} />
-              <span>Filters</span>
+              <span>Filter</span>
             </button>
           </form>
 
@@ -162,7 +162,7 @@ const BrowseItems = () => {
               <div className="filters-grid">
                 <div className="filter-group">
                   <label htmlFor="category" className="filter-label">
-                    Category
+                    Kategori
                   </label>
                   <select
                     id="category"
@@ -170,7 +170,7 @@ const BrowseItems = () => {
                     onChange={(e) => handleFilterChange('category_id', e.target.value)}
                     className="filter-select"
                   >
-                    <option value="">All Categories</option>
+                    <option value="">Semua Kategori</option>
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.name}
@@ -181,12 +181,12 @@ const BrowseItems = () => {
 
                 <div className="filter-group">
                   <label htmlFor="location" className="filter-label">
-                    Location
+                    Lokasi
                   </label>
                   <input
                     type="text"
                     id="location"
-                    placeholder="e.g., Ruang Baca Lt. 3"
+                    placeholder="Contoh: Ruang Baca Lt. 3"
                     value={filters.location}
                     onChange={(e) => handleFilterChange('location', e.target.value)}
                     className="filter-input"
@@ -196,10 +196,10 @@ const BrowseItems = () => {
 
               <div className="filters-actions">
                 <button onClick={() => fetchItems(1)} className="filter-apply">
-                  Apply Filters
+                  Terapkan Filter
                 </button>
                 <button onClick={clearFilters} className="filter-clear">
-                  Clear All
+                  Hapus Semua
                 </button>
               </div>
             </motion.div>
@@ -221,7 +221,7 @@ const BrowseItems = () => {
               animate={{ opacity: 1, y: 0 }}
             >
               <Package size={64} />
-              <h3 className="empty-title">No items found</h3>
+              <h3 className="empty-title">Tidak ada barang ditemukan</h3>
               <p className="empty-description">
                 {isLost
                   ? 'Belum ada laporan barang hilang yang cocok dengan pencarian Anda'
@@ -229,55 +229,38 @@ const BrowseItems = () => {
               </p>
             </motion.div>
           ) : (
-            <div className="items-grid">
+            <div className="items-list">
               {items.map((item, index) => (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  transition={{ duration: 0.3, delay: index * 0.03 }}
                 >
-                  <Link to={`/items/${item.id}`} className="item-card">
-                    <div className="item-image-wrapper">
+                  <Link to={`/items/${item.id}`} className="item-row">
+                    <div className="item-row-thumb">
                       {item.image_path ? (
-                        <img
-                          src={getStorageUrl(item.image_path)}
-                          alt={item.item_name}
-                          className="item-image"
-                        />
+                        <img src={getStorageUrl(item.image_path)} alt={item.item_name} />
                       ) : (
-                        <div className="item-placeholder">
-                          <Package size={48} />
-                        </div>
-                      )}
-                      <div className={`item-badge ${itemType}`}>
-                        {titleWord}
-                      </div>
-                      {item.removal_deadline_at && (
-                        <div className="item-removal-badge">
-                          <Megaphone size={13} />
-                          <span>Dihapus {formatDate(item.removal_deadline_at)}</span>
-                        </div>
+                        <Package size={22} />
                       )}
                     </div>
 
-                    <div className="item-body">
-                      <h3 className="item-name">{item.item_name}</h3>
-                      <p className="item-description">{item.description}</p>
-
-                      <div className="item-meta">
-                        <div className="item-meta-item">
-                          <MapPin size={14} />
-                          <span>{item.location}</span>
-                        </div>
-                        <div className="item-meta-item">
-                          <Calendar size={14} />
-                          <span>{formatDate(item.date_lost || item.created_at)}</span>
-                        </div>
+                    <div className="item-row-main">
+                      <div className="item-row-title">
+                        <h3 className="item-name">{item.item_name}</h3>
+                        <span className={`item-badge-inline ${itemType}`}>{titleWord}</span>
                       </div>
+                      <div className="item-row-meta">
+                        <span><MapPin size={13} /> {item.location}</span>
+                        <span><Calendar size={13} /> {formatDate(item.date_lost || item.created_at)}</span>
+                      </div>
+                    </div>
 
-                      {item.category && (
-                        <div className="item-category">{item.category.name}</div>
+                    <div className="item-row-side">
+                      {item.category && <span className="item-category">{item.category.name}</span>}
+                      {item.removal_deadline_at && (
+                        <span className="item-removal-note"><Megaphone size={13} /> Dihapus {formatDate(item.removal_deadline_at)}</span>
                       )}
                     </div>
                   </Link>
