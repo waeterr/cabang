@@ -54,13 +54,19 @@ class ClaimController extends Controller
 
         if ($report->type !== 'found') {
             return response()->json([
-                'message' => 'You can only claim found items',
+                'message' => 'Hanya barang temuan yang dapat diklaim',
             ], 422);
         }
 
         if ($report->status !== 'approved') {
             return response()->json([
-                'message' => 'You can only claim approved reports',
+                'message' => 'Hanya laporan yang sudah disetujui yang dapat diklaim',
+            ], 422);
+        }
+
+        if ($report->isRemovalDeadlinePassed()) {
+            return response()->json([
+                'message' => 'Batas klaim barang ini sudah lewat. Silakan hubungi petugas perpustakaan.',
             ], 422);
         }
 
@@ -71,7 +77,7 @@ class ClaimController extends Controller
 
         if ($existingClaim) {
             return response()->json([
-                'message' => 'You have already claimed this item',
+                'message' => 'Anda sudah mengajukan klaim untuk barang ini',
             ], 422);
         }
 

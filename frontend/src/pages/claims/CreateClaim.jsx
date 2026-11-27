@@ -26,8 +26,13 @@ const CreateClaim = () => {
     getReportById(id)
       .then((data) => {
         if (data.type !== 'found' || data.status !== 'approved') {
-          throw new Error('Item tidak tersedia untuk diklaim');
+          throw new Error('Barang tidak tersedia untuk diklaim');
         }
+
+        if (data.removal_deadline_at && new Date(data.removal_deadline_at) < new Date()) {
+          throw new Error('Batas klaim barang ini sudah lewat');
+        }
+
         setReport(data);
       })
       .catch((error) => {
@@ -95,7 +100,7 @@ const CreateClaim = () => {
         </Link>
         <motion.div className="create-report-header" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="header-icon"><Package size={32} /></div>
-          <h1 className="create-report-title"><span className="text-gradient">Claim</span> Item</h1>
+          <h1 className="create-report-title"><span className="text-gradient">Klaim</span> Barang</h1>
           <p className="create-report-subtitle">Buktikan bahwa barang ini milik Anda.</p>
         </motion.div>
 

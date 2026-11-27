@@ -18,6 +18,8 @@ const ItemDetail = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
 
+  const isClaimClosed = item?.removal_deadline_at && new Date(item.removal_deadline_at) < new Date();
+
   useEffect(() => {
     fetchItem();
   }, [id]);
@@ -28,7 +30,7 @@ const ItemDetail = () => {
       const data = await getReportById(id);
       setItem(data);
     } catch (error) {
-      toast.error('Failed to load item details');
+      toast.error('Gagal memuat detail barang');
       navigate('/items/lost');
     } finally {
       setIsLoading(false);
@@ -36,8 +38,13 @@ const ItemDetail = () => {
   };
 
   const handleClaim = () => {
+    if (isClaimClosed) {
+      toast.error('Batas klaim barang ini sudah lewat');
+      return;
+    }
+
     if (!isAuthenticated) {
-      toast.error('Please login to claim this item');
+      toast.error('Masuk dulu untuk mengajukan klaim');
       navigate('/login');
       return;
     }
@@ -49,7 +56,7 @@ const ItemDetail = () => {
     }
 
     if (!user?.is_verified || user?.verification_status !== 'approved') {
-      toast.error('Your account must be verified to claim items');
+      toast.error('Akun Anda harus terverifikasi KTM untuk mengajukan klaim');
       navigate('/verification-pending');
       return;
     }
@@ -60,10 +67,10 @@ const ItemDetail = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: { label: 'Pending Review', icon: AlertCircle, color: 'yellow' },
-      approved: { label: 'Verified', icon: CheckCircle, color: 'cyan' },
-      rejected: { label: 'Rejected', icon: AlertCircle, color: 'red' },
-      resolved: { label: 'Resolved', icon: CheckCircle, color: 'green' },
+      pending: { label: 'Menunggu Review', icon: AlertCircle, color: 'yellow' },
+      approved: { label: 'Terverifikasi', icon: CheckCircle, color: 'cyan' },
+      rejected: { label: 'Ditolak', icon: AlertCircle, color: 'red' },
+      resolved: { label: 'Selesai', icon: CheckCircle, color: 'green' },
     };
     return badges[status] || badges.pending;
   };
@@ -74,7 +81,7 @@ const ItemDetail = () => {
         <AmbientBackground />
         <Navbar />
         <div className="detail-container">
-          <div className="detail-loading">Loading item details...</div>
+          <div className="detail-loading">Memuat detail barang...</div>
         </div>
       </div>
     );
@@ -100,7 +107,7 @@ const ItemDetail = () => {
         >
           <Link to={`/items/${item.type}`} className="back-link">
             <ArrowLeft size={20} />
-            <span>Back to {item.type === 'lost' ? 'Lost' : 'Found'} Items</span>
+            <span>Kembali ke Barang {item.type === 'lost' ? 'Hilang' : 'Temuan'}</span>
           </Link>
         </motion.div>
 
@@ -122,7 +129,7 @@ const ItemDetail = () => {
             ) : (
               <div className="detail-image-placeholder">
                 <Package size={80} />
-                <p>No image available</p>
+                <p>Tidak ada foto</p>
               </div>
             )}
           </motion.div>
@@ -135,7 +142,7 @@ const ItemDetail = () => {
           >
             <div className="detail-badges">
               <span className={`detail-type-badge type-${item.type}`}>
-                {item.type === 'lost' ? 'Lost Item' : 'Found Item'}
+                {item.type === 'lost' ? 'Barang Hilang' : 'Barang Temuan'}
               </span>
               <span className={`detail-status-badge status-${statusBadge.color}`}>
                 <statusBadge.icon size={16} />
@@ -154,7 +161,7 @@ const ItemDetail = () => {
               <div className="detail-meta-item">
                 <MapPin size={20} />
                 <div>
-                  <div className="meta-label">Location</div>
+                  <div className="meta-label">Lokasi</div>
                   <div className="meta-value">{item.location}</div>
                 </div>
               </div>
@@ -162,20 +169,20 @@ const ItemDetail = () => {
               <div className="detail-meta-item">
                 <Calendar size={20} />
                 <div>
-                  <div className="meta-label">Date {item.type === 'lost' ? 'Lost' : 'Found'}</div>
+                  <div className="meta-label">Tanggal {item.type === 'lost' ? 'Hilang' : 'Ditemukan'}</div>
                   <div className="meta-value">{formatDate(item.date)}</div>
                 </div>
               </div>
             </div>
 
             <div className="detail-description">
-              <h2>Description</h2>
+              <h2>Deskripsi</h2>
               <p>{item.description}</p>
             </div>
 
             {item.additional_info && (
               <div className="detail-additional">
-                <h2>Additional Information</h2>
+                <h2>Informasi Tambahan</h2>
                 <p>{item.additional_info}</p>
               </div>
             )}
@@ -186,8 +193,11 @@ const ItemDetail = () => {
                 <div>
                   <h2>Pemberitahuan Penghapusan</h2>
                   <p>
-                    Barang ini akan dihapus dari daftar bila tidak diklaim sebelum{' '}
-                    <strong>{formatDate(item.removal_deadline_at)}</strong>.
+                    {isClaimClosed
+                      ? 'Batas klaim untuk barang ini sudah lewat dan barang akan segera diarsipkan.'
+                      : 'Barang ini akan dihapus dari daftar bila tidak diklaim sebelum '}
+                    {!isClaimClosed && <strong>{formatDate(item.removal_deadline_at)}</strong>}
+                    {!isClaimClosed && '.'}
                   </p>
                   {item.removal_notice && <p>{item.removal_notice}</p>}
                 </div>
@@ -199,30 +209,39 @@ const ItemDetail = () => {
                 {item.user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="reporter-info">
-                <div className="reporter-label">Reported by</div>
-                <div className="reporter-name">{item.user?.name || 'Unknown'}</div>
+                <div className="reporter-label">Dilaporkan oleh</div>
+                <div className="reporter-name">{item.user?.name || 'Tidak diketahui'}</div>
               </div>
             </div>
 
             {item.status === 'approved' && item.type === 'found' && (
-              <div className="detail-actions">
-                <button onClick={handleClaim} className="btn-claim">
-                  Claim This Item
-                </button>
-                <p className="claim-note">
-                  {!isAuthenticated
-                    ? 'Login required to claim items'
-                    : !user?.is_verified
-                    ? 'Account verification required'
-                    : 'Confirm this is your lost item'}
-                </p>
-              </div>
+              isClaimClosed ? (
+                <div className="detail-claim-closed">
+                  <AlertCircle size={20} />
+                  <span>Batas klaim sudah lewat. Silakan hubungi petugas perpustakaan.</span>
+                </div>
+              ) : (
+                <div className="detail-actions">
+                  <button onClick={handleClaim} className="btn-claim">
+                    Klaim Barang Ini
+                  </button>
+                  <p className="claim-note">
+                    {!isAuthenticated
+                      ? 'Masuk dulu untuk mengajukan klaim'
+                      : !user?.email_verified_at
+                      ? 'Verifikasi email diperlukan'
+                      : !user?.is_verified
+                      ? 'Verifikasi KTM diperlukan'
+                      : 'Pastikan barang ini benar milik Anda'}
+                  </p>
+                </div>
+              )
             )}
 
             {item.status === 'resolved' && (
               <div className="detail-resolved">
                 <CheckCircle size={20} />
-                <span>This item has been resolved</span>
+                <span>Barang ini sudah diselesaikan</span>
               </div>
             )}
           </motion.div>
