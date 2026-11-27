@@ -74,6 +74,11 @@ const CreateClaim = () => {
       toast.success('Klaim terkirim. Menunggu verifikasi admin.');
       navigate('/dashboard');
     } catch (error) {
+      if (error.response?.status === 403 && error.response?.data?.email_verified === false) {
+        toast.error('Verifikasi email Anda dulu sebelum mengajukan klaim.');
+        navigate('/verify-email');
+        return;
+      }
       toast.error(handleApiError(error));
     } finally {
       setIsSubmitting(false);

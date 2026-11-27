@@ -42,6 +42,12 @@ const ItemDetail = () => {
       return;
     }
 
+    if (!user?.email_verified_at) {
+      toast.error('Verifikasi email Anda dulu sebelum mengajukan klaim');
+      navigate('/verify-email');
+      return;
+    }
+
     if (!user?.is_verified || user?.verification_status !== 'approved') {
       toast.error('Your account must be verified to claim items');
       navigate('/verification-pending');

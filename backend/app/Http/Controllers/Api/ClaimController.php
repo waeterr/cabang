@@ -33,6 +33,15 @@ class ClaimController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
+
+        if (! $user->email_verified_at) {
+            return response()->json([
+                'message' => 'Verifikasi email Anda terlebih dahulu sebelum mengajukan klaim.',
+                'email_verified' => false,
+            ], 403);
+        }
+
         $validated = $request->validate([
             'report_id' => ['required', 'exists:reports,id'],
             'proof_description' => ['required', 'string'],
